@@ -29,25 +29,26 @@
 #include <math.h>
 #include <stdlib.h>
 
-/* Stress relaxation parameters from Rozzi */
-/*
-#define EA(M, T) \
-    1e6 * (68.18*(1/(1+exp(((M)-250.92*exp(-0.0091*(T)))/2.19))+0.078))
-#define E1(M, T) \
-    1e6 * (20.26*exp(-0.0802*((M)+0.0474*(T)-14.238)))
-#define E2(M, T) \
-    1e6 * (2.484 + 6.576/(1+exp(((M)-19.36)/0.848)))
-#define LAMBDA1 7
-#define LAMBDA2 110
-*/
+#define STRESS0(T) EffPorePress(CINIT/CAMB, (T))
+#define STRESS(X, T) (EffPorePress((X), (T)) / STRESS0(T))
 
-#define EA(M, T) 1.87e-6
-#define E1(M, T) 1.19e-7
-#define E2(M, T) 2.16e-7
+/* Stress relaxation parameters from Rozzi */
+#define EA(M, T) \
+    1e6 * (68.18*(1/(1+exp(((M)-250.92*exp(-0.0091*(T)))/2.19))+0.078)) / STRESS0(T)
+#define E1(M, T) \
+    1e6 * (20.26*exp(-0.0802*((M)+0.0474*(T)-14.238))) / STRESS0(T)
+#define E2(M, T) \
+    1e6 * (2.484 + 6.576/(1+exp(((M)-19.36)/0.848))) / STRESS0(T)
+#define LAMBDA1 scaleTime(p->chardiff, 7)
+#define LAMBDA2 scaleTime(p->chardiff, 110)
+/*
+#define EA(M, T) 1/1.87e-6
+#define E1(M, T) 1/1.19e-7
+#define E2(M, T) 1/2.16e-7
 #define LAMBDA1 2.058
 #define LAMBDA2 24.425
+*/
 
-#define STRESS(X, T) EffPorePress((X), (T))
 
 /**
  * Derivative of the main differential equation with respect to strain
@@ -55,26 +56,12 @@
 double ResSolid_dTde(struct fe1d *p, matrix *guess, Elem1D *elem,
                     double x, int f1, int f2)
 {
-    double T = TINIT,
-           C = 0,
-           Ci, Ea = 0, value;
-    int i;
+    double value;
     basis *b;
+
     b = p->b;
 
-    solution *s;
-    s = CreateSolution(p->t, p->dt, guess);
-
-    for(i=0; i<b->n; i++) {
-        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
-        Ci = uscaleTemp(p->chardiff, Ci);
-        
-        C += Ci * b->phi[i](x);
-        Ea += EA(Ci, T) * b->phi[i](x);
-    }
-
     value = -1 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
-    free(s);
     return value;
 }
 
