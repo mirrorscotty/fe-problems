@@ -1,0 +1,9 @@
+[submodule "matrix"]
+	path = matrix
+	url = git@github.com:/mirrorscotty/matrix.git
+[submodule "material-data"]
+	path = material-data
+	url = git@github.com:/mirrorscotty/material-data.git
+[submodule "fe-solver"]
+	path = fe-solver
+	url = git@github.com:/mirrorscotty/fe-solver.git
