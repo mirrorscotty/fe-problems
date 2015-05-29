@@ -1,7 +1,7 @@
 /**
  * @file lin-genmaxwell.c
  *
- * Viscoelasticity differential equations for generalized maxwell model
+ * Viscoelasticity differential equations for generalized Maxwell model
  * Primary equation
  * \f[
  * \sigma = E_0\epsilon + \sum_{m=1}^M E_m q^m
@@ -28,16 +28,17 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define EA(M, T) \
-    1e6 * (68.18*(1/(1+exp(((M)-250.92*exp(-0.0091*(T)))/2.19))+0.078))
-#define E1(M, T) \
-    1e6 * (20.26*exp(-0.0802*((M)+0.0474*(T)-14.238)))
-#define E2(M, T) \
-    1e6 * (2.484 + 6.576/(1+exp(((M)-19.36)/0.848)))
-#define LAMBDA1 7
-#define LAMBDA2 110
+#define STRESS0(T) EffPorePress(CINIT/CAMB, (T))
+#define STRESS(X, T) (EffPorePress((X), (T)) / STRESS0(T))
 
-#define STRESS(X, T) EffPorePress((X), (T))
+#define EA(M, T) \
+    1e6 * (68.18*(1/(1+exp(((M)-250.92*exp(-0.0091*(T)))/2.19))+0.078)) / STRESS0(T)
+#define E1(M, T) \
+    1e6 * (20.26*exp(-0.0802*((M)+0.0474*(T)-14.238))) / STRESS0(T)
+#define E2(M, T) \
+    1e6 * (2.484 + 6.576/(1+exp(((M)-19.36)/0.848))) / STRESS0(T)
+#define LAMBDA1 scaleTime(p->chardiff, 7)
+#define LAMBDA2 scaleTime(p->chardiff, 110)
 
 /**
  * Derivative of the main differential equation with respect to strain
@@ -143,7 +144,7 @@ double ResSolid_zero(struct fe1d *p, matrix *guess, Elem1D *elem,
 double ResSolid_dP1dq1(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
-    return -1/LAMBDA1
+    return 1/LAMBDA1
         * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
@@ -154,14 +155,14 @@ double ResSolid_dP1dq1(struct fe1d *p, matrix *guess, Elem1D *elem,
 double ResSolid_dP2dq2(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
-    return -1/LAMBDA2
+    return 1/LAMBDA2
         * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
 double ResDtSolid_dP1de(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
-    return p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
+    return -1 * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
 double ResDtSolid_dP1dq1(struct fe1d *p, matrix *guess, Elem1D *elem,
@@ -173,7 +174,7 @@ double ResDtSolid_dP1dq1(struct fe1d *p, matrix *guess, Elem1D *elem,
 double ResDtSolid_dP2de(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
-    return p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
+    return -1 * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
 double ResDtSolid_dP2dq2(struct fe1d *p, matrix *guess, Elem1D *elem,

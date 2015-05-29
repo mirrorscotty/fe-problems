@@ -61,7 +61,6 @@ clean:
 	$(MAKE) -C fe-solver clean
 	rm -rf doc
 
-
 freezing.o: material-data/freezing/freezing.c material-data/freezing/freezing.h
 	$(CC) -c material-data/freezing/freezing.c $(CFLAGS)
 
@@ -72,14 +71,14 @@ heat-gui.o: heating/heat-gui.c heating/heat-gui.h
 	$(CC) -c gui/heating/heat-gui.c $(CFLAGS)
 
 fe-solver.a:
-	$(MAKE) -C fe-solver
+	$(MAKE) -C fe-solver fe-solver.a
 	cp fe-solver/fe-solver.a .
 
 matrix.a:
-	$(MAKE) -C matrix
+	$(MAKE) -C matrix matrix.a
 	cp matrix/matrix.a .
 
 material-data.a:
-	$(MAKE) -C material-data
+	$(MAKE) -C material-data material-data.a
 	cp material-data/material-data.a .
 

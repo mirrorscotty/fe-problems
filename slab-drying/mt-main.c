@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     b = MakeLinBasis(1);
 
     /* Create a uniform mesh */
-    mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 20);
+    mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 4);
     
     //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
     tfinal = floor(scaleTime(scale_mass, 7200)/.0001);

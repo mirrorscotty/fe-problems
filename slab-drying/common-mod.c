@@ -163,6 +163,7 @@ matrix* CreateElementLoad(struct fe1d *p, Elem1D *elem, matrix *guess) {
 
     for(i=0; i<b->n*v; i+=v) {
         value = quad1d3generic(p, guess, elem, &ResFSolid_T, i/v, 0);
+            printf("Value = %g\n", value);
         setval(m, value, i+STVAR, 0);
     }
 

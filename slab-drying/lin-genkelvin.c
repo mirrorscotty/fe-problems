@@ -1,12 +1,12 @@
 /**
  * @file lin-genkelvin.c
  *
- * Viscoelasticity differential equations for generalized maxwell model
+ * Viscoelasticity differential equations for generalized Kelvin model
  * Primary equation
  * \f[
  * \epsilon = J_0\sigma + \sum_{m=1}^M J_m r^m
  * \f]
- * Equation for each Maxwell element included in the model
+ * Equation for each Kelvin element included in the model
  * \f[
  * \frac{\partial}{\partial t}r^m + \frac{1}{\tau_m}r^m = \sigma
  * \f]
@@ -15,7 +15,6 @@
  * \f[
  * R_i^T = \int_{x_i}^{x_{i+1}} \left\{J_0\sigma + \sum_{m=1}^M J_m r_i^m\phi_i - \epsilon_i\phi_i\right\}\phi_j dx = 0
  * \f]
- * Not fixed yet
  * \f[
  * R_i^{P_m} = \int_{x_i}^{x_{i+1}} \left\{\frac{\partial r_i^m}{\partial t}\phi_i + \frac{1}{\tau_m} r_i^m\phi_i - \sigma\right\}\phi_j dx = 0
  * \f]
