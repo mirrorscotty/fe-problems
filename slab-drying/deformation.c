@@ -105,7 +105,7 @@ double CreepLauraL(double t, double T, double X, double P, int deriv)
  * @param t Time step number
  * @returns Calculated value for the deformation gradient
  */
-double DeformationGrad(struct fe1d *p, double X, double t)
+double DeformationGrad(struct fe1d *p, int i, double X, double t)
 {
     solution *s0, *sn;
     double rho0, rhon;
@@ -222,35 +222,22 @@ double Porosity(struct fe1d *p, double X, int t)
     return phi;
 }
 
-/**
- * Calculate the value of the strain at the specified time and spatial
- * coordinates.
- * The value here is based on the pore pressure and viscoelastic strain from
- * the specified models.
- * @param p Finite element problem structure
- * @param X Spatial coordinate (global)
- * @param t Time step number
- * @returns Calculated value for the deformation gradient
- */
-double StrainPc(struct fe1d *p, double X, double t)
-{
-#ifndef CVAR
-    return 1;
-#endif
 
+/**
+ * Unoptimized time integration algorithm to calculate part of the strain.
+ */
+double _StrainPc(struct fe1d *p, int z, double X, double t)
+{
     solution *s;
-    double T = TINIT, /* Initial temperature */
-           Xdb, /* Moisture Content */
-           dt = p->dt, /* Time step size (from problem definition) [-]*/
-           tf = uscaleTime(p->chardiff, t*dt), /* Final time [s] */
-           ti, /* Time at current loop iteration [s] */
-           e = 0, /* Strain [-] */
-           P; /* Pore pressure [Pa] */
-    int i; /* Loop Index */
- 
-    /* Integrate the creep function from t=0 to t=tf. */
+    double T = TINIT,
+           /* TODO: Fix this so that the time step can change */
+           tf = uscaleTime(p->chardiff, t*p->dt),
+           dt, ti, Xdb, P, e;
+    int i;
+
     for(i=1; i<p->t; i++) {
         s = FetchSolution(p, i);
+        dt = s->dt;
         /* Time */
         ti = uscaleTime(p->chardiff, i*dt);
         /* Moisture content */
@@ -261,6 +248,75 @@ double StrainPc(struct fe1d *p, double X, double t)
          */
         e += CREEP(tf-ti, T, Xdb, -1*P, 1) * P * s->dt;
     }
+    return e;
+}
+
+double _StrainPcOpt(struct fe1d *p, int i, double X, double t)
+{
+    solution *s, *sa;
+    double T = TINIT,
+           tf = uscaleTime(p->chardiff, t*p->dt),
+           ti, Xdb, P, h;
+
+    sa = 0;
+
+    if(t==1) {
+        h=0;
+    } else {
+        sa = FetchAuxSoln(p, 0, t-1);
+
+        /* Internal strain variable value */
+        h = val(sa->val, i, 0);
+    }
+
+    s = FetchSolution(p, t);
+    /* Time */
+    ti = uscaleTime(p->chardiff, t);
+    /* Moisture content */
+    Xdb = uscaleTemp(p->chardiff, EvalSoln1DG(p, CVAR, s, X, 0));
+    /* Calculate pore pressure */
+    P = EffPorePress(Xdb, T) * Porosity(p, X, t);
+    /* Evaluate the creep function and add the current strain to the total
+     */
+    h += CREEP(tf-ti, T, Xdb, -1*P, 1) * P * p->dt;
+
+    sa = FetchAuxSoln(p, 0, t);
+    if(!sa) {
+        InitAuxStep(p, 0, t);
+        sa = FetchAuxSoln(p, 0, t);
+    }
+    setval(sa->val, h, i, 0);
+
+    return h;
+}
+
+/**
+ * Calculate the value of the strain at the specified time and spatial
+ * coordinates.
+ * The value here is based on the pore pressure and viscoelastic strain from
+ * the specified models.
+ * @param p Finite element problem structure
+ * @param i Node number
+ * @param X Spatial coordinate (global)
+ * @param t Time step number
+ * @returns Calculated value for the deformation gradient
+ */
+double StrainPc(struct fe1d *p, int i, double X, double t)
+{
+#ifndef CVAR
+    return 1;
+#endif
+
+    solution *s;
+    double T = TINIT, /* Initial temperature */
+           Xdb, /* Moisture Content */
+           tf = uscaleTime(p->chardiff, t*p->dt), /* Final time [s] */
+           e = 0, /* Strain [-] */
+           P; /* Pore pressure [Pa] */
+ 
+    /* Integrate the creep function from t=0 to t=tf. */
+    //e = _StrainPc(p, X, t);
+    e = _StrainPcOpt(p, i, X, t);
 
     /* Because we used integration by parts, add in the rest of the integration
      * formula. Because we're using inverse Laplace transforms, use a value
@@ -283,10 +339,16 @@ double StrainPc(struct fe1d *p, double X, double t)
 /**
  * The creep function is converted to bulk compliance using the formula in
  * Bazang 1975 (assuming constant poisson ratio).
+ * @param p Finite element problem definition
+ * @param i Node number
+ * @param X Lagrangian x-coordinate
+ * @param t Time (dimensionless)
+ *
+ * @returns Deformation Gradient
  */
-double DeformGradPc(struct fe1d *p, double X, double t)
+double DeformGradPc(struct fe1d *p, int i, double X, double t)
 {
-    return 1 - StrainPc(p, X, t)*6*(.5-POISSON);
+    return 1 - StrainPc(p, i, X, t)*6*(.5-POISSON);
 }
 
 /**
@@ -296,7 +358,7 @@ double DeformGradPc(struct fe1d *p, double X, double t)
  * \f]
  * where \f$\beta\f$ is the hygroscopic expansion coefficient.
  */
-double DeformGradBeta(struct fe1d *p, double X, double t)
+double DeformGradBeta(struct fe1d *p, int i, double X, double t)
 {
 #ifndef CVAR
     return 1;
@@ -315,10 +377,10 @@ double DeformGradBeta(struct fe1d *p, double X, double t)
     return 1+e;
 }
 
-double FindPoisson(struct fe1d *p, double X, double t)
+double FindPoisson(struct fe1d *p, int i, double X, double t)
 {
-    double e = StrainPc(p, X, t),
-           F = DeformGradBeta(p, X, t),
+    double e = StrainPc(p, i, X, t),
+           F = DeformGradBeta(p, i, X, t),
            nu;
     
     nu = (3*e + F-1)/(6*e);

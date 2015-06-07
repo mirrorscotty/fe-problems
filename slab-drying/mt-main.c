@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 4);
     
     //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
-    tfinal = floor(scaleTime(scale_mass, 7200)/.0001);
+    tfinal = floor(scaleTime(scale_mass, 7200)/1e-5);
     //tfinal = floor(scaleTime(scale_mass, 1080000/3)/.01);
     printf("tf = %d\n", tfinal);
     problem = CreateFE1D(b, mesh,
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     problem->nvars = 1;
 #endif
 
-    problem->dt = 1e-20; /* Dimensionless time step size */
+    problem->dt = 1e-5; /* Dimensionless time step size */
     problem->chardiff = scale_mass;
 
     /* Set the initial temperature */
@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
     /* Apply the initial condition to the problem and set up the transient
      * solver. */
     FE1DTransInit(problem, IC_mass);
+    FE1DInitAuxSolns(problem, 1);
 
     FPnu = fopen("poisson.csv", "w");
     fprintf(FPnu, "t,x,Xdb,nu\n");
