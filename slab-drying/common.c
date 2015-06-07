@@ -140,8 +140,10 @@ matrix* CreateElementLoad(struct fe1d *p, Elem1D *elem, matrix *guess) {
     m = CreateMatrix(b->n*v, 1);
 
     for(i=0; i<b->n*v; i+=v) {
+#ifdef SVAR
         value = quad1d3generic(p, guess, elem, &ResFSolid, i/v, 0);
         setval(m, value, i+SVAR, 0);
+#endif
     }
 
     return m;

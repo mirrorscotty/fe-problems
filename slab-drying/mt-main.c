@@ -47,7 +47,12 @@ int main(int argc, char *argv[])
                          &CreateElementLoad,
                          &ApplyAllBCs,
                          tfinal);
+#ifdef SHRINKAGE_DIFFEQ
     problem->nvars = 4; /* Number of simultaneous PDEs to solve */
+#else
+    problem->nvars = 1;
+#endif
+
     problem->dt = 1e-20; /* Dimensionless time step size */
     problem->chardiff = scale_mass;
 
@@ -62,10 +67,11 @@ int main(int argc, char *argv[])
     fprintf(FPnu, "t,x,Xdb,nu\n");
     while(problem->t<problem->maxsteps) {
         //printf("Step %d of %d\r", problem->t, problem->maxsteps);
-        printf("Step %d of %d\t", problem->t, problem->maxsteps);
+        printf("Step %d of %d\r", problem->t, problem->maxsteps);
         fflush(stdout);
         NLinSolve1DTransImp(problem, NULL);
 
+#ifdef SHRINKAGE_DIFFEQ
         //problem->t -= 1;
         s = FetchSolution(problem, problem->t-1);
         if(problem->t > 5) {
@@ -75,6 +81,7 @@ int main(int argc, char *argv[])
             printf("\n");
         }
         //problem->t += 1;
+#endif
 
 #ifdef SHRINKAGE
         if(problem->t-1 > 0) {
