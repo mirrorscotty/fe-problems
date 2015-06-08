@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     solution *s;
     FILE *FPnu;
-    double C, x;
+    double C, x, dt = 1e-4;
     int i, tfinal;
 
     comp_global = CreateChoiOkos(0, 0, 0, 1, 0, 0, 0);
@@ -35,10 +35,10 @@ int main(int argc, char *argv[])
     b = MakeLinBasis(1);
 
     /* Create a uniform mesh */
-    mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 4);
+    mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 10);
     
     //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
-    tfinal = floor(scaleTime(scale_mass, 7200)/1e-5);
+    tfinal = 3*floor(scaleTime(scale_mass, 7200)/dt);
     //tfinal = floor(scaleTime(scale_mass, 1080000/3)/.01);
     printf("tf = %d\n", tfinal);
     problem = CreateFE1D(b, mesh,
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     problem->nvars = 1;
 #endif
 
-    problem->dt = 1e-5; /* Dimensionless time step size */
+    problem->dt = dt; /* Dimensionless time step size */
     problem->chardiff = scale_mass;
 
     /* Set the initial temperature */
@@ -110,8 +110,8 @@ int main(int argc, char *argv[])
 
     PrintScalingValues(problem->chardiff);
 
-    PrintSolution(problem, 1);
-    printf("Solution at t = %g:\n", uscaleTime(problem->chardiff, problem->t*problem->dt));
+    //PrintSolution(problem, 1);
+    printf("Solution at t = %g (s):\n", uscaleTime(problem->chardiff, problem->t*problem->dt));
     PrintSolution(problem, problem->t-1);
 /*
     CSVOutFixedNode2(problem, 0, "output00.csv");

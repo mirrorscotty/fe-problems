@@ -11,7 +11,7 @@
 //#define TINIT 273 //K
 //#define TINIT 313.15 //K
 //#define TINIT 353.15 //K
-#define TINIT 333 //K
+#define TINIT 318 //K
 #define HCONV 50
 
 #define CAMB 0.15 // kg/kg db
@@ -24,7 +24,7 @@
 
 #define THICKNESS 1e-3
 
-#define POISSON .37
+#define POISSON .375
 
 #define SHRINKAGE
 
