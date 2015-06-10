@@ -3,7 +3,6 @@
 #include "deformation.h"
 #include "material-data.h"
 
-
 extern choi_okos *comp_global;
 
 double CreepGina(double t, double T, double X, double P, int deriv)
@@ -219,7 +218,7 @@ double Porosity(struct fe1d *p, double X, int t)
     vf = 1-e; /* Total volume */
     phi = (vf-vs)/(vf); /* Porosity */
 
-    return phi;
+    return phi*0.1;
 }
 
 

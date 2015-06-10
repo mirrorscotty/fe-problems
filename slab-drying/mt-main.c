@@ -127,6 +127,7 @@ int main(int argc, char *argv[])
     CSVOutFixedNode2(problem, 10, "output10.csv");
 */
     CSVOutAvg(problem, CVAR, "OutAvg.csv");
+    CSVOutFixedNodeDiff(problem, 10, "OutDx10.csv");
 
     PrintVector(problem->mesh->orig->nodes);
     PrintVector(problem->mesh->nodes);

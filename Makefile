@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-lm -I. -Imatrix -Imaterial-data -Ife-solver -Wall -g3 -O0 
 VPATH=other slab-drying problems/viscoelasticity gui solver/mesh solver/ode solver/integration matrix material-data scaling solver output
 
-all: diffusion-kelvin
+all: diffusion
 
 doc:
 	doxygen DoxyFile
@@ -33,7 +33,7 @@ heat-transfer: heat-transfer.o ht-main.o common.o fe-solver.a material-data.a ma
 ht-mt: diffusion.o heat-transfer.o main.o common.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion: diffusion.o deformation.o lin-maxwell.o mt-main.o common.o fe-solver.a material-data.a matrix.a
+diffusion: diffusion.o deformation.o lin-maxwell.o mt-main.o common.o output.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
 diffusion-mod: diffusion.o deformation.o lin-genmaxwell.o mt-main.o common-mod.o fe-solver.a material-data.a matrix.a

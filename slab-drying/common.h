@@ -11,7 +11,7 @@
 //#define TINIT 273 //K
 //#define TINIT 313.15 //K
 //#define TINIT 353.15 //K
-#define TINIT 318 //K
+#define TINIT 338 //K
 #define HCONV 50
 
 #define CAMB 0.15 // kg/kg db
@@ -19,12 +19,12 @@
 //#define CAMB 0.138 // kg/kg db (RH=.65, T=40C)
 //#define CAMB 0.0975028 // kg/kg db (RH=.7, T=80C)
 //#define CAMB 0.15049 // kg/kg db (RH=.7, T=40C)
-#define CINIT .5 // kg/kg db
+#define CINIT .55 // kg/kg db
 #define KC_CONV 2e-11
 
 #define THICKNESS 1e-3
 
-#define POISSON .375
+#define POISSON .30
 
 #define SHRINKAGE
 
@@ -43,6 +43,7 @@ matrix* CreateElementLoad(struct fe1d *, Elem1D *, matrix *);
 int IsOnRightBoundary(struct fe1d *, int);
 int IsOnLeftBoundary(struct fe1d *, int);
 void ApplyAllBCs(struct fe1d *);
+void CSVOutFixedNodeDiff(struct fe1d*, int, char*);
 //double DeformationGrad(struct fe1d *, double, double);
 
 #endif
