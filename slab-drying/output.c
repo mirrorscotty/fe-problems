@@ -4,6 +4,9 @@
  */
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include "fe-solver.h"
 #include "material-data.h"
@@ -111,6 +114,63 @@ void CSVOutAvg(struct fe1d *p, int var, char *filename)
     }
     fprintf(fp, "\n");
 
+    fclose(fp);
+
+    return;
+}
+
+void CSVOutProfiles(struct fe1d *p, int n, char *filename)
+{
+    int dt = floor(p->t/n),
+        i, j;
+    matrix *main, *tmp1, *tmp2;
+    FILE *fp;
+    char *header, *hdrtmp;
+    solution *s;
+
+    /* Get the first solution... */
+    s = FetchSolution(p, 0);
+    /* and make the first two columns of the matrix with it. */
+    tmp1 = CatColVector(1, s->mesh->nodes);
+    main = AugmentMatrix(tmp1, s->val);
+    DestroyMatrix(tmp1);
+
+    /* Assume we need an average of 15 characters per profile for a header */
+    header = (char*) calloc(sizeof(char), n*15);
+    sprintf(header, ",t=%d", 0);
+    
+    for(i=1; i<n; i++) {
+        /* Get the next solution */
+        s = FetchSolution(p, i*dt);
+        /* Add a column for the x-coordinates */
+        tmp1 = CatColVector(1, s->mesh->nodes);
+        tmp2 = AugmentMatrix(main, tmp1);
+        DestroyMatrix(tmp1);
+        DestroyMatrix(main);
+        /* And then for the concentrations */
+        main = AugmentMatrix(tmp2, s->val);
+        DestroyMatrix(tmp2);
+        
+        /* Then do the header */
+        hdrtmp = (char*) calloc(sizeof(char), 15);
+        sprintf(hdrtmp, ",,t=%g", uscaleTime(p->chardiff, i*dt));
+        strcat(header, hdrtmp);
+    }
+
+    strcat(header, "\n");
+
+    fp = fopen(filename, "w+");
+    fprintf(fp, header);
+    for(i=0; i<nRows(main); i++) {
+        for(j=0; j<nCols(main)-1; j++) {
+            if(j%2)
+                fprintf(fp, "%g,", uscaleTemp(p->chardiff, val(main, i, j)));
+            else
+                fprintf(fp, "%g,", val(main, i, j));
+        }
+        fprintf(fp, "%g\n",
+                uscaleTemp(p->chardiff, val(main, i, nCols(main)-1)));
+    }
     fclose(fp);
 
     return;

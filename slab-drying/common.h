@@ -11,15 +11,15 @@
 //#define TINIT 273 //K
 //#define TINIT 313.15 //K
 //#define TINIT 353.15 //K
-#define TINIT 338 //K
+#define TINIT 303 //K
 #define HCONV 50
 
-#define CAMB 0.15 // kg/kg db
+#define CAMB 0.20// kg/kg db
 //#define CAMB 0.0861867 // kg/kg db (RH=.65, T=80C)
 //#define CAMB 0.138 // kg/kg db (RH=.65, T=40C)
 //#define CAMB 0.0975028 // kg/kg db (RH=.7, T=80C)
 //#define CAMB 0.15049 // kg/kg db (RH=.7, T=40C)
-#define CINIT .55 // kg/kg db
+#define CINIT .40 // kg/kg db
 #define KC_CONV 2e-11
 
 #define THICKNESS 1e-3
@@ -44,6 +44,7 @@ int IsOnRightBoundary(struct fe1d *, int);
 int IsOnLeftBoundary(struct fe1d *, int);
 void ApplyAllBCs(struct fe1d *);
 void CSVOutFixedNodeDiff(struct fe1d*, int, char*);
+void CSVOutProfiles(struct fe1d *, int, char *);
 //double DeformationGrad(struct fe1d *, double, double);
 
 #endif

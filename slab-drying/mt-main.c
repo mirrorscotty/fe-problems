@@ -24,8 +24,9 @@ int main(int argc, char *argv[])
 
     solution *s;
     FILE *FPnu;
-    double C, x, dt = 1e-4;
+    double C, x, dt = 1e-3;
     int i, tfinal;
+    char *outfile;
 
     comp_global = CreateChoiOkos(0, 0, 0, 1, 0, 0, 0);
     scale_mass = SetupScaling(DIFF(CINIT, TINIT), CINIT, CAMB, THICKNESS, DIFF(CINIT, TINIT), KC_CONV*1e10);
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
     mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 10);
     
     //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
-    tfinal = 3*floor(scaleTime(scale_mass, 7200)/dt);
+    tfinal = 3*10*floor(scaleTime(scale_mass, 7200)/dt);
     //tfinal = floor(scaleTime(scale_mass, 1080000/3)/.01);
     printf("tf = %d\n", tfinal);
     problem = CreateFE1D(b, mesh,
@@ -126,8 +127,15 @@ int main(int argc, char *argv[])
     CSVOutFixedNode2(problem, 9, "output09.csv");
     CSVOutFixedNode2(problem, 10, "output10.csv");
 */
-    CSVOutAvg(problem, CVAR, "OutAvg.csv");
+    outfile = (char*) calloc(sizeof(char), 30);
+
+    sprintf(outfile, "OutAvg-%gK.csv", (double) TINIT);
+    CSVOutAvg(problem, CVAR, outfile);
     CSVOutFixedNodeDiff(problem, 10, "OutDx10.csv");
+    sprintf(outfile, "OutProfile-%gK.csv", (double) TINIT);
+    CSVOutProfiles(problem, 15, outfile);
+
+    free(outfile);
 
     PrintVector(problem->mesh->orig->nodes);
     PrintVector(problem->mesh->nodes);

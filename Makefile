@@ -33,7 +33,7 @@ heat-transfer: heat-transfer.o ht-main.o common.o fe-solver.a material-data.a ma
 ht-mt: diffusion.o heat-transfer.o main.o common.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion: diffusion.o deformation.o lin-maxwell.o mt-main.o common.o output.o fe-solver.a material-data.a matrix.a
+diffusion: diffusion.o deformation.o mt-main.o common.o output.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
 diffusion-mod: diffusion.o deformation.o lin-genmaxwell.o mt-main.o common-mod.o fe-solver.a material-data.a matrix.a
@@ -42,12 +42,12 @@ diffusion-mod: diffusion.o deformation.o lin-genmaxwell.o mt-main.o common-mod.o
 diffusion-kelvin: diffusion.o deformation.o lin-genkelvin.o mt-main.o common-kelvin.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion.o: diffusion.h
-deformation.o: deformation.h
+diffusion.o: diffusion.h common.h
+deformation.o: deformation.h common.h
 lin-maxwell.o: lin-maxwell.h
 lin-genmaxwell.o: lin-genmaxwell.h
 lin-genkelvin.o: lin-genkelvin.h
-mt-main.o:
+mt-main.o: common.h
 common.o: common.h
 common-mod.o: common-mod.h
 common-kelvin.o: common-kelvin.h
