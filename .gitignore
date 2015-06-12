@@ -1,0 +1,25 @@
+# Object files
+*.o
+*.ko
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Vim swap files
+.*.swp
+
+# Ignore CSV files because they shouldn't be included in this repository
+*.csv
+

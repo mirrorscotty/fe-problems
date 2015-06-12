@@ -231,7 +231,7 @@ double _StrainPc(struct fe1d *p, int z, double X, double t)
     double T = TINIT,
            /* TODO: Fix this so that the time step can change */
            tf = uscaleTime(p->chardiff, t*p->dt),
-           dt, ti, Xdb, P, e;
+           dt, ti, Xdb, P, e=0;
     int i;
 
     for(i=1; i<p->t; i++) {

@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
     /* Create a uniform mesh */
     mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 10);
 
-    //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
     tfinal = 3*10*floor(scaleTime(scale_mass, 7200)/dt);
+    //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
     //tfinal = floor(scaleTime(scale_mass, 1080000/3)/.01);
     printf("tf = %d\n", tfinal);
     problem = CreateFE1D(b, mesh,
@@ -131,7 +131,8 @@ int main(int argc, char *argv[])
 
     sprintf(outfile, "OutAvg-%gK.csv", (double) TINIT);
     CSVOutAvg(problem, CVAR, outfile);
-    CSVOutFixedNodeDiff(problem, 10, "OutDx10.csv");
+    sprintf(outfile, "OutD-%gK.csv", (double) TINIT);
+    CSVOutFixedNodeDiff(problem, 10, outfile);
     sprintf(outfile, "OutProfile-%gK.csv", (double) TINIT);
     CSVOutProfiles(problem, 15, outfile);
 
