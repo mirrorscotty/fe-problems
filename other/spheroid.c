@@ -10,9 +10,9 @@
 matrix* CreateElementMatrix(struct fe *p, Elem2D* e, matrix *guess)
 {
     basis *b;
-    
+
     b = p->b;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
@@ -34,7 +34,7 @@ matrix* CreateElementMatrix(struct fe *p, Elem2D* e, matrix *guess)
 matrix* CreateElementLoad(struct fe *p, Elem2D *e, matrix *guess) {
     int i;
     matrix *f;
-    
+
     basis *b;
     b = p->b;
 
@@ -141,17 +141,17 @@ int main(int argc, char *argv[])
     basis *b;
 
     matrix *E;
-    
+
     struct fe* problem;
 
     b = MakeQuadBasis(2);
 
     /* Create a uniform mesh */
     mesh = MakeSpheroidMesh(b, 0.8, 5, 10, 10);
-    
+
     problem = CreateFE(b, mesh, CreateElementMatrix, CreateElementLoad, ApplyAllBCs);
     problem->nvars = 1;
-    
+
     E = LinSolve(problem);
 
 //    mtxprnt(E);

@@ -31,7 +31,7 @@ double EaA = 10000,
 
 #define TREF 500 // K
 #define THICKNESS 2.0
-#define HCONV 50 
+#define HCONV 50
 
 choi_okos *comp_global;
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
     /* Create a uniform mesh */
     mesh = GenerateUniformMesh1D(b, 0.0, THICKNESS, 20);
-    
+
     problem = CreateFE1D(b, mesh,
                          &CreateDTimeMatrix,
                          &CreateElementMatrix,

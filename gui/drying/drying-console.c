@@ -41,7 +41,7 @@ fe1d* setupDomain()
     problem->nvars = 2;
 
     problem->dt = scaleTime(charvals, Deltat);
-    
+
     IC = GenerateInitCondConst(problem, 0, 1);
     IC = GenerateInitCondConst(problem, 1, 1);
 

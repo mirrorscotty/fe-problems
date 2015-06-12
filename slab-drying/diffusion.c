@@ -50,7 +50,7 @@ extern choi_okos *comp_global;
  *      This value is chosen by the integration function.
  * @param f1 Value for \f$i\f$ in \f$\phi_i\f$
  * @param f2 Value for \f$j\f$ in \f$\phi_j\f$
- * 
+ *
  * @returns Calculated value for the residual (not integrated)
  */
 double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
@@ -107,7 +107,7 @@ double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
     term3 = b->dphi[f1](x) * IMapDt1D(p, elem, x);
     term3 *= b->phi[f2](x);
     term3 *= 1/IMap1D(p, elem, x);
-    
+
     /* Combine all the terms and return the result */
     value = (term1 - term2)/p->chardiff.alpha + term3;
     return value;
@@ -125,9 +125,9 @@ double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
  *      This value is chosen by the integration function.
  * @param f1 Value for \f$i\f$ in \f$\phi_i\f$
  * @param f2 Value for \f$j\f$ in \f$\phi_j\f$
- * 
+ *
  * @returns Calculated value for the residual (not integrated)
- * 
+ *
  * @see ResMass
  */
 double ResDtMass(struct fe1d *p, matrix *guess, Elem1D *elem,

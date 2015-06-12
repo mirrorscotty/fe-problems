@@ -500,7 +500,7 @@ void Solver::setupDomain()
     scaling_ht charvals; /* Scaling parameters */
 
     /* Define the characteristic temperature to be the initial temperature of
-     * the can. */ 
+     * the can. */
     double Tc = spinTInit->value();
     /* Characteristic length = Domain radius */
     double Lc = spinWidth->value();
@@ -552,7 +552,7 @@ void Solver::solveProblems()
     struct var *tmp;
     QProgressDialog progress("Solving PDE...", "Abort Solution", 0, 100, this);
     progress.setWindowModality(Qt::WindowModal);
-    
+
     // Set all the global variables to 0 so that things don't break horribly
     // if everything wasn't defined.
    // initialize_variables();
@@ -598,7 +598,7 @@ void Solver::solveProblems()
             break;
         }
     }
-    
+
     if(problem) {
         progress.setValue(problem->maxsteps);
 
@@ -757,7 +757,7 @@ void Solver::plotResultsTime(int nodenum)
     solution *s;
 
     title = (char*) calloc(20, sizeof(char));
-    
+
     /* Create an array with the time values. */
     t = (double*) calloc(npts, sizeof(double));
     for(i=0; i<npts; i++) {
@@ -824,7 +824,7 @@ void Solver::plotResultsTime(int nodenum)
         ice->setSamples(t, d, npts);
         free(d);
     }
-    
+
     if(checkk->isChecked()) {
         a = (double*) calloc(npts, sizeof(double));
         for(i=0; i<npts; i++) {
@@ -869,7 +869,7 @@ void Solver::plotResultsSpace(int t)
     solution *s;
 
     title = (char*) calloc(20, sizeof(char));
-    
+
     /* Create an array with the x values. */
     x = (double*) calloc(npts, sizeof(double));
     defmesh = deformMesh(problem, t);
@@ -939,7 +939,7 @@ void Solver::plotResultsSpace(int t)
         ice->setSamples(x, d, npts);
         free(d);
     }
-    
+
     if(checkk->isChecked()) {
         a = (double*) calloc(npts, sizeof(double));
         s = FetchSolution(problem, t);

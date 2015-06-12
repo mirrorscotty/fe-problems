@@ -62,7 +62,7 @@ void CSVOutFixedNodeDiff(struct fe1d *p, int row, char *filename)
         for(n=0; n<p->maxsteps-i-1; n++)
             mesh = mesh->prev;
         X = valV(mesh->nodes, row);
-        
+
         fprintf(fp, "%g,%g,%g,%g,%g\n", i*p->dt, X, C, J, rhot);
         //fprintf(fp, "%g,%g,%g\n", rho(comp_global, T), Cp(comp_global, T), k(comp_global, T));
     }
@@ -138,7 +138,7 @@ void CSVOutProfiles(struct fe1d *p, int n, char *filename)
     /* Assume we need an average of 15 characters per profile for a header */
     header = (char*) calloc(sizeof(char), n*15);
     sprintf(header, ",t=%d", 0);
-    
+
     for(i=1; i<n; i++) {
         /* Get the next solution */
         s = FetchSolution(p, i*dt);
@@ -150,7 +150,7 @@ void CSVOutProfiles(struct fe1d *p, int n, char *filename)
         /* And then for the concentrations */
         main = AugmentMatrix(tmp2, s->val);
         DestroyMatrix(tmp2);
-        
+
         /* Then do the header */
         hdrtmp = (char*) calloc(sizeof(char), 15);
         sprintf(hdrtmp, ",,t=%g", uscaleTime(p->chardiff, i*dt));

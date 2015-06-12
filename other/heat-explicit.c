@@ -18,7 +18,7 @@ double Residual(struct fe1d *p, matrix *guess, Elem1D *elem, double x, int f1, i
     double value = 0;
     basis *b;
     b = p->b;
-    
+
     value  = b->dphi[f1](x) * b->dphi[f2](x);
     value *= IMap1D(p, elem, x);
 
@@ -51,15 +51,15 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
 {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, b->n*v);
-    
+
     for(i=0; i<b->n*v; i+=v) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &Residual, i/v, j/v);
@@ -77,15 +77,15 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
 matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, b->n*v);
-    
+
     for(i=0; i<b->n*v; i+=v) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &ResDt, i/v, j/v);
@@ -99,22 +99,22 @@ matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
 matrix* CreateElementLoad(struct fe1d *p, Elem1D *elem, matrix *guess) {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, 1);
 
     return m;
 }
-   
+
 
 int IsOnRightBoundary(struct fe1d *p, int row)
 {
     double width = p->mesh->x2 - p->mesh->x1;
     double x = valV(p->mesh->nodes, row/p->nvars);
-    
+
     if(fabs(x - width) < 1e-5)
         return 1;
     else
@@ -124,7 +124,7 @@ int IsOnRightBoundary(struct fe1d *p, int row)
 int IsOnLeftBoundary(struct fe1d *p, int row)
 {
     double x = valV(p->mesh->nodes, row/p->nvars);
-  
+
     if(fabs(x) < 1e-5)
         return 1;
     else
@@ -167,15 +167,15 @@ double ConvBC(struct fe1d *p, int row)
 
 void ApplyAllBCs(struct fe1d *p)
 {
-    
+
     // BC at x=0
     //ApplyEssentialBC1D(p, 0, &IsOnLeftBoundary, &Left);
-    
+
     // BC at x=L
     //ApplyNaturalBC1D(p, 0, &IsOnRightBoundary, &ConvBC);
     ApplyEssentialBC1D(p, 0, &IsOnLeftBoundary, &Zero);
     ApplyEssentialBC1D(p, 0, &IsOnRightBoundary, &Zero);
-    
+
     return;
 }
 
@@ -200,7 +200,7 @@ double react1(double cprev, double T, double dt)
     R = 1;
 
     T = fabs(T);
-    
+
     return cprev - dt*A*exp(-Ea/(R*T));
 }
 
@@ -212,7 +212,7 @@ double react2(double cprev, double T, double dt)
     R = 2;
 
     T = fabs(T);
-    
+
     return cprev - dt*A*exp(-Ea/(R*T));
 }
 
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 
     /* Create a uniform mesh */
     mesh = GenerateUniformMesh1D(b, 0.0, 2.0, 6);
-    
+
     problem = CreateFE1D(b, mesh,
                          &CreateDTimeMatrix,
                          &CreateElementMatrix,

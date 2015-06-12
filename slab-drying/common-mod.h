@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define CVAR 0 
+#define CVAR 0
 #define STVAR 1
 #define SP1VAR 2
 #define SP2VAR 3

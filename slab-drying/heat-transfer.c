@@ -1,6 +1,6 @@
 /**
  * @file heat-transfer.c
- * Solves the nonlinear heat conduction equation. 
+ * Solves the nonlinear heat conduction equation.
  * \f[
  * \rho C_p\frac{\partial T}{\partial t} = \nabla\cdot\left(k\nabla T\right)
  * \f]
@@ -68,7 +68,7 @@ extern choi_okos *comp_global;
  *      This value is chosen by the integration function.
  * @param f1 Value for \f$i\f$ in \f$\phi_i\f$
  * @param f2 Value for \f$j\f$ in \f$\phi_j\f$
- * 
+ *
  * @returns Calculated value for the residual (not integrated)
  */
 double ResHeat(struct fe1d *p, matrix *guess, Elem1D *elem,
@@ -101,7 +101,7 @@ double ResHeat(struct fe1d *p, matrix *guess, Elem1D *elem,
         //Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         //coweti = AddDryBasis(comp_global, Ci);
         coweti = comp_global;
-        
+
         ki = k(coweti, uscaleTemp(p->charvals, Ti));
         kval += ki * b->phi[i](x);
         DkDx += ki * b->dphi[i](x);
@@ -131,7 +131,7 @@ double ResHeat(struct fe1d *p, matrix *guess, Elem1D *elem,
     term3 = b->dphi[f1](x) * IMapDt1D(p, elem, x);
     term3 *= b->phi[f2](x);
     term3 *= 1/IMap1D(p, elem, x);
-    
+
     /* Combine all the terms and return the result */
     value = (term1 - term2)/(rhoval*Cpval)/p->charvals.alpha + term3;
     return value;
@@ -149,9 +149,9 @@ double ResHeat(struct fe1d *p, matrix *guess, Elem1D *elem,
  *      This value is chosen by the integration function.
  * @param f1 Value for \f$i\f$ in \f$\phi_i\f$
  * @param f2 Value for \f$j\f$ in \f$\phi_j\f$
- * 
+ *
  * @returns Calculated value for the residual (not integrated)
- * 
+ *
  * @see ResHeat
  */
 double ResDtHeat(struct fe1d *p, matrix *guess, Elem1D *elem,

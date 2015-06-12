@@ -10,9 +10,9 @@
 matrix* CreateElementMatrix(struct fe *p, Elem2D *elem, matrix *guess)
 {
     basis *b;
-    
+
     b = p->b;
-    
+
     int i, j;
     double value = 0;
     double dx = 1;//elem->dx;
@@ -36,7 +36,7 @@ matrix* CreateElementMatrix(struct fe *p, Elem2D *elem, matrix *guess)
 matrix* CreateElementLoad(struct fe *p, Elem2D *elem, matrix *guess) {
     int i;
     matrix *f;
-    
+
     basis *b;
     b = p->b;
 
@@ -76,12 +76,12 @@ void ApplyAllBCs(struct fe *p)
     matrix *J, *F;
     basis *b;
     Mesh2D *mesh;
-    
+
     b = p->b;
     mesh = p->mesh;
     F = p->F;
     J = p->J;
-    
+
     int i;
     vector *v;
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
     basis *b;
 
     matrix *E;
-    
+
     struct fe* problem;
 
     b = MakeLinBasis(2);
@@ -151,11 +151,11 @@ int main(int argc, char *argv[])
     mesh = GenerateUniformMesh2D(0.0, 1.0,
                                  0.0, 1.0,
                                  1, 1);
-    
+
     MeshPrint(mesh);
     problem = CreateFE(b, mesh, CreateElementMatrix, CreateElementLoad, ApplyAllBCs2);
     problem->nvars = 1;
-    
+
     //E = SolveMatrixEquation(problem->J, problem->F);
     E = LinSolve(problem);
 

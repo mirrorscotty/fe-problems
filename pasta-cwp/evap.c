@@ -55,7 +55,7 @@ double DIDcw(struct fe1d *p, matrix *guess, Elem1D *elem, double x, int f1, int 
 double DIDwv(struct fe1d *p,
         matrix *guess,
         Elem1D *elem,
-        double x, 
+        double x,
         int f1, int f2)
 {
     double Idot = 0,
@@ -144,7 +144,7 @@ double IdotLoad(struct fe1d *p,
         double x,
         int f1)
 {
-    double Idot = 0, 
+    double Idot = 0,
            cw0, wv0, P0, T0, phi0;
     solution *s;
 

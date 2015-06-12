@@ -10,7 +10,7 @@
 matrix* CreateElementMatrixOld(double Pe, double h)
 {
     matrix *elem;
- 
+
     elem = CreateMatrix(2, 2);
     setval(elem, 1/h-Pe/2, 0, 0);
     setval(elem, -1/h+Pe/2, 0, 1);
@@ -64,7 +64,7 @@ matrix* testelem(basis* b, double Pe, double h)
 {
     matrix *elem;
     int i, j;
- 
+
     elem = CreateMatrix(b->n, b->n);
     for(i=0; i<b->n; i++) {
         for(j=0; j<b->n; j++) {
@@ -246,7 +246,7 @@ double EvalSolution(matrix *m, basis *b, double x, double left, double right, ma
 	case 3:
 	    for(i=0; x>val(xcoord, i, 0)+val(m, i/2, 0) && i+3<nRows(xcoord); i+=2);
 	    c = (x-val(xcoord, i, 0))/val(m, i/2, 0);
-	    return val(soln, i, 0) * b->phi[0](c) 
+	    return val(soln, i, 0) * b->phi[0](c)
                 + val(soln, i+1, 0) * b->phi[1](c)
                 + val(soln, i+2, 0) * b->phi[2](c);
 	    break;
@@ -275,7 +275,7 @@ double EValue(matrix *m, basis *b, double left, double right, matrix *soln, doub
                    0.774596669241483};
     double w[] = {0.555555555555555,
                   0.888888888888888,
-                  0.555555555555555}; 
+                  0.555555555555555};
     double result=0;
     int i;
 
@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
 
     //ApplyBoundaryConditions(J, F, b, 0, 1);
     ApplyBoundaryConditions(J, F, b, 2, 1);
-    
+
     E = SolveMatrixEquation(J, F);
     printf("E = %1.10f\n", EValue(mesh, b, left, right, E, Pe));
     printf("f(pi/4) = %f\n", EvalSolution(mesh, b, PI/4, left, right, E));
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
         setval(y, EvalSolution(mesh, b, val(x1, i, 0), left, right, E), i, 0);
     }
     xy = AugmentMatrix(x1, y);
-    
+
     /* Print out the result */
     if(argc == 4) {
         mtxprntfile(xy, argv[3]);
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
         puts("");
         mtxprnt(E);
     }
-    
+
     /* Clean up the allocated memory */
     DestroyMatrix(J);
     DestroyMatrix(F);

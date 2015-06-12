@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     /* Create a uniform mesh */
     mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 10);
-    
+
     //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
     tfinal = 3*10*floor(scaleTime(scale_mass, 7200)/dt);
     //tfinal = floor(scaleTime(scale_mass, 1080000/3)/.01);
@@ -87,9 +87,9 @@ int main(int argc, char *argv[])
 
 #ifdef SHRINKAGE
         if(problem->t-1 > 0) {
-            problem->mesh = 
+            problem->mesh =
                 MoveMeshF(problem, problem->mesh->orig,
-                          problem->t-1, &DeformGradPc); 
+                          problem->t-1, &DeformGradPc);
 
             //PrintVector(problem->mesh->nodes);
             for(i=5; i<6; i++) {

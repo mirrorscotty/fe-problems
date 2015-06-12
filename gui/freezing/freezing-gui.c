@@ -32,7 +32,7 @@ double Residual(struct fe1d *p, matrix *guess, Elem1D *elem, double x, int f1, i
         T = p->charvals.Tc;
     else
         T = EvalSoln1D(p, 0, elem, s, x);
-   
+
     /* Normally, this should be multiplied by the thermal diffusivity. However,
      * we will assume that alpha is constant and, because of dimensionless
      * groups, this is all done later. */
@@ -64,15 +64,15 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
 {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, b->n*v);
-    
+
     for(i=0; i<b->n*v; i+=v) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &Residual, i/v, j/v);
@@ -87,15 +87,15 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
 matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, b->n*v);
-    
+
     for(i=0; i<b->n*v; i+=v) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &ResDt, i/v, j/v);
@@ -110,11 +110,11 @@ matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
 matrix* CreateElementLoad(struct fe1d *p, Elem1D *elem, matrix *guess) {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, 1);
 
     return m;
@@ -126,7 +126,7 @@ int IsOnRightBoundary(struct fe1d *p, int row)
 {
     double width = p->mesh->x2 - p->mesh->x1;
     double x = valV(p->mesh->nodes, row/p->nvars);
-    
+
     if(fabs(x - width) < 1e-5)
         return 1;
     else
@@ -137,7 +137,7 @@ int IsOnRightBoundary(struct fe1d *p, int row)
 int IsOnLeftBoundary(struct fe1d *p, int row)
 {
     double x = valV(p->mesh->nodes, row/p->nvars);
-  
+
     if(fabs(x) < 1e-5)
         return 1;
     else
@@ -175,8 +175,8 @@ double ConvBC(struct fe1d *p, int row)
 
 void ApplyAllBCs(struct fe1d *p)
 {
-    double Bi = BiotNumber(p->charvals); 
-    
+    double Bi = BiotNumber(p->charvals);
+
     /* BC at x=L
      * This approximates any Biot number larger than 100 as Bi->infty. This is a
      * good approximation for this problem since it results in the outside of
@@ -199,7 +199,7 @@ double react1(double cprev, double T, double dt)
     double tmp;
 
     T = fabs(T);
-    
+
     tmp = cprev*(1 - dt*AA*exp(-EaA/(R*T)));
 
     return tmp;

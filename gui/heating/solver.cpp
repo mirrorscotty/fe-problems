@@ -198,7 +198,7 @@ void Solver::leftBCShowConv()
     lbctext->show();
     spinHLeft->show();
     spinTExtLeft->show();
- 
+
     return;
 }
 
@@ -358,7 +358,7 @@ void Solver::setupDomain()
     scaling_ht charvals; /* Scaling parameters */
 
     /* Define the characteristic temperature to be the initial temperature of
-     * the can. */ 
+     * the can. */
     double Tc = spinTInit->value();
     /* Characteristic length = Domain radius */
     double Lc = spinWidth->value();
@@ -406,7 +406,7 @@ void Solver::solveProblems()
     struct var *tmp;
     QProgressDialog progress("Solving PDE...", "Abort Solution", 0, 100, this);
     progress.setWindowModality(Qt::WindowModal);
-    
+
     // Set all the global variables to 0 so that things don't break horribly
     // if everything wasn't defined.
     initialize_variables();
@@ -452,7 +452,7 @@ void Solver::solveProblems()
             break;
         }
     }
-    
+
     if(problem) {
         progress.setValue(problem->maxsteps);
 
@@ -518,11 +518,11 @@ void Solver::plotResultsTime(int nodenum)
     int npts = problem->maxsteps;
     double *t, *T, *c, *d, *a, tmp;
     char *title;
-    
+
     solution *s;
 
     title = (char*) calloc(20, sizeof(char));
-    
+
     /* Create an array with the time values. */
     t = (double*) calloc(npts, sizeof(double));
     for(i=0; i<npts; i++) {
@@ -581,7 +581,7 @@ void Solver::plotResultsTime(int nodenum)
         Bact->setSamples(t, d, npts);
         free(d);
     }
-    
+
     if(checkk->isChecked()) {
         a = (double*) calloc(npts, sizeof(double));
         for(i=0; i<npts; i++) {
@@ -623,7 +623,7 @@ void Solver::plotResultsSpace(int t)
     solution *s;
 
     title = (char*) calloc(20, sizeof(char));
-    
+
     /* Create an array with the x values. */
     x = (double*) calloc(npts, sizeof(double));
     for(i=0; i<npts; i++) {
@@ -683,7 +683,7 @@ void Solver::plotResultsSpace(int t)
         Bact->setSamples(x, d, npts);
         free(d);
     }
-    
+
     if(checkk->isChecked()) {
         a = (double*) calloc(npts, sizeof(double));
         s = FetchSolution(problem, t);
@@ -722,7 +722,7 @@ void Solver::loadSimulation()
     QByteArray ba;
     char **buffer;
     int i;
-    
+
     buffer = NULL;
     tmp = NULL;
 
@@ -742,7 +742,7 @@ void Solver::loadSimulation()
 
     // Convert the filename to a char*
     ba = path.toLocal8Bit();
-    
+
     // Read the data file into a buffer.
     buffer = read_datafile(ba.data());
 

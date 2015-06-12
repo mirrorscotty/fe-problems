@@ -17,7 +17,7 @@ double Residual(struct fe1d *p, matrix *guess, Elem1D *elem, double x, int f1, i
     double value = 0;
     basis *b;
     b = p->b;
-    
+
     value  = b->phi[f1](x) * b->phi[f2](x);
 
     return value;
@@ -72,15 +72,15 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
 {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, b->n*v);
-    
+
     for(i=0; i<b->n*v; i+=v) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &Residual, i/v, j/v);
@@ -98,15 +98,15 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
 matrix* CreateElementLoad(struct fe1d *p, Elem1D *elem, matrix *guess) {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, b->n*v);
-    
+
     for(i=0; i<b->n*v; i+=v) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &R2D2, i/v, j/v);
@@ -124,7 +124,7 @@ int IsOnRightBoundary(struct fe1d *p, int row)
 {
     double width = p->mesh->x2 - p->mesh->x1;
     double x = valV(p->mesh->nodes, row/p->nvars);
-    
+
     if(fabs(x - width) < 1e-5)
         return 1;
     else
@@ -134,7 +134,7 @@ int IsOnRightBoundary(struct fe1d *p, int row)
 int IsOnLeftBoundary(struct fe1d *p, int row)
 {
     double x = valV(p->mesh->nodes, row/p->nvars);
-  
+
     if(fabs(x) < 1e-5)
         return 1;
     else
@@ -172,13 +172,13 @@ double ConvBC(struct fe1d *p, int row)
 
 void ApplyAllBCs(struct fe1d *p)
 {
-    
+
     // BC at x=0
     ApplyEssentialBC1D(p, 0, &IsOnLeftBoundary, &Left);
-    
+
     // BC at x=L
     ApplyNaturalBC1D(p, 0, &IsOnRightBoundary, &ConvBC);
-    
+
     return;
 }
 
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 
     /* Create a uniform mesh */
     mesh = GenerateUniformMesh1D(b, 0.0, 1.0, 5);
-    
+
     problem = CreateFE1D(b, mesh, &CreateElementMatrix, &CreateElementLoad, &ApplyAllBCs, 100);
     problem->nvars = 1;
     problem->dt = .001;

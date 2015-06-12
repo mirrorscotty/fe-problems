@@ -5,7 +5,7 @@
  * \f[
  * \sigma + \lambda\dot{\sigma} = E_\infty\epsilon + \lambda(E_\infty+E)\dot{\epsilon}
  * \f]
- *  
+ *
  *  Finite element formulation:
  *  \f[
  *  R_S^i = \int_0^L\left\{
@@ -68,7 +68,7 @@ double ResSolid(struct fe1d *p, matrix *guess, Elem1D *elem,
 
         C += C * b->phi[i](x);
     }
-        
+
     Ea = EA(C, T);
     value = Ea
             * b->phi[f1](x)*b->phi[f2](x) / IMap1D(p, elem, x);
@@ -115,7 +115,7 @@ double ResFSolid(struct fe1d *p, matrix *guess, Elem1D *elem, double x, int f1, 
     int i;
     solution *s, *sp;
     basis *b;
-    
+
     b = p->b;
     s = CreateSolution(p->t, p->dt, guess);
     sp = FetchSolution(p, p->t-1);

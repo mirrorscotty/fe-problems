@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-lm -I. -Imatrix -Imaterial-data -Ife-solver -Wall -g3 -O0 
+CFLAGS=-lm -I. -Imatrix -Imaterial-data -Ife-solver -Wall -g3 -O2
 VPATH=other slab-drying problems/viscoelasticity gui solver/mesh solver/ode solver/integration matrix material-data scaling solver output
 
 all: diffusion

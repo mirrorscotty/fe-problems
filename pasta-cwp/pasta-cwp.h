@@ -22,7 +22,7 @@
                            (PHI),\
                            uscaleTemp((S), (T)),\
                            uscalePress((S), (T))))
-                
+
 #define C_GAS(CW, WV, PHI, T, P)\
     scaleConc((S) conc_gas(uscaleConc((S), (CW)),\
                            (WV),\

@@ -46,15 +46,15 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
 {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, b->n*v);
-    
+
     for(i=0; i<b->n*v; i+=v) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &ResMass, i/v, j/v);
@@ -105,15 +105,15 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
 matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
     basis *b;
     b = p->b;
-    
+
     int v = p->nvars;
-    
+
     int i, j;
     double value = 0;
     matrix *m;
-    
+
     m = CreateMatrix(b->n*v, b->n*v);
-    
+
     for(i=0; i<b->n*v; i+=v) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &ResDtMass, i/v, j/v);
@@ -220,7 +220,7 @@ void ApplyAllBCs(struct fe1d *p)
 #ifdef CVAR
     double Bim = BiotNumber(p->chardiff);
 #endif
-    
+
     /* BC at x=L:
      * This approximates any Biot number larger than 100 as Bi->infty. This is a
      * good approximation for this problem since it results in the outside of

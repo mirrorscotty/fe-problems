@@ -59,7 +59,7 @@ double ResSolid_dTde(struct fe1d *p, matrix *guess, Elem1D *elem,
     for(i=0; i<b->n; i++) {
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         Ci = uscaleTemp(p->chardiff, Ci);
-        
+
         C += Ci * b->phi[i](x);
         Ea += EA(Ci, T) * b->phi[i](x);
     }
@@ -90,7 +90,7 @@ double ResSolid_dTdq1(struct fe1d *p, matrix *guess, Elem1D *elem,
     for(i=0; i<b->n; i++) {
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         Ci = uscaleTemp(p->chardiff, Ci);
-        
+
         C += Ci * b->phi[i](x);
         e1 += E1(Ci, T) * b->phi[i](x);
     }
@@ -121,7 +121,7 @@ double ResSolid_dTdq2(struct fe1d *p, matrix *guess, Elem1D *elem,
     for(i=0; i<b->n; i++) {
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         Ci = uscaleTemp(p->chardiff, Ci);
-        
+
         C += Ci * b->phi[i](x);
         e2 += E2(Ci, T) * b->phi[i](x);
     }

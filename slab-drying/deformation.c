@@ -109,12 +109,12 @@ double DeformationGrad(struct fe1d *p, int i, double X, double t)
     solution *s0, *sn;
     double rho0, rhon;
     double T0 = TINIT, Tn = TINIT;
-    
+
 #ifdef CVAR
     double C0, Cn;
     choi_okos *cowet0, *cowetn;
 #endif
-    
+
     s0 = FetchSolution(p, 0);
     sn = FetchSolution(p, t);
 
@@ -175,7 +175,7 @@ double PrevStrain(struct fe1d *p, double X, int t)
     if(t==0)
         return 0;
     s = FetchSolution(p, t);
-    
+
     e = EvalSoln1DG(p, -1, s, X, 1);
 
     return e;
@@ -312,7 +312,7 @@ double StrainPc(struct fe1d *p, int i, double X, double t)
            tf = uscaleTime(p->chardiff, t*p->dt), /* Final time [s] */
            e = 0, /* Strain [-] */
            P; /* Pore pressure [Pa] */
- 
+
     /* Integrate the creep function from t=0 to t=tf. */
     //e = _StrainPc(p, X, t);
     e = _StrainPcOpt(p, i, X, t);
@@ -365,7 +365,7 @@ double DeformGradBeta(struct fe1d *p, int i, double X, double t)
 
     solution *s;
     double e = 0,
-           beta = BETA, 
+           beta = BETA,
            C = 0;
 
     s = FetchSolution(p, t-1);
@@ -381,7 +381,7 @@ double FindPoisson(struct fe1d *p, int i, double X, double t)
     double e = StrainPc(p, i, X, t),
            F = DeformGradBeta(p, i, X, t),
            nu;
-    
+
     nu = (3*e + F-1)/(6*e);
     //if(nu<0)
         //printf("e = %g, F = %g\n", e, F);

@@ -11,7 +11,7 @@ class Solver : public QMainWindow, private Ui::SolverWindow
     public:
         Solver(QWidget *parent = 0);
         ~Solver();
-        
+
     public slots:
 //        void solve();
         void quitApplication();

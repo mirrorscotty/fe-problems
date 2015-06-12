@@ -2,7 +2,7 @@
 #define COMMON_H
 
 //#define TVAR 0
-#define CVAR 0 
+#define CVAR 0
 //#define SVAR 1
 //#define PVAR 1
 

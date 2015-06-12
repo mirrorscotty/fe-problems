@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     /* Create a uniform mesh */
     //mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_heat, THICKNESS), 2);
     mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 2);
-    
+
     problem = CreateFE1D(b, mesh,
                          &CreateDTimeMatrix,
                          &CreateElementMatrix,
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         mtxprnt(problem->dJ);
         //exit(0);
         if(problem->t-1 > 0)
-            problem->mesh = 
+            problem->mesh =
                 MoveMeshF(problem, problem->mesh->orig,
                           problem->t-1, &DeformationGrad);
     }
