@@ -77,6 +77,7 @@ void CSVOutFixedNodeDiff(struct fe1d *p, int row, char *filename)
     }
     fprintf(fp, "\n");
 
+    DestroyChoiOkos(comp_dry);
     fclose(fp);
 
     return;
@@ -164,12 +165,14 @@ void CSVOutProfiles(struct fe1d *p, int n, char *filename)
         hdrtmp = (char*) calloc(sizeof(char), 15);
         sprintf(hdrtmp, ",,t=%g", uscaleTime(p->chardiff, i*dt));
         strcat(header, hdrtmp);
+        free(hdrtmp);
     }
 
     strcat(header, "\n");
 
     fp = fopen(filename, "w+");
     fprintf(fp, header);
+    free(header);
     for(i=0; i<nRows(data); i++) {
         for(j=0; j<nCols(data)-1; j++) {
             if(j%2)
@@ -181,6 +184,7 @@ void CSVOutProfiles(struct fe1d *p, int n, char *filename)
                 uscaleTemp(p->chardiff, val(data, i, nCols(data)-1)));
     }
     fclose(fp);
+    DestroyMatrix(data);
 
     return;
 }

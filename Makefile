@@ -54,7 +54,7 @@ common-kelvin.o: common-kelvin.h
 
 clean:
 #rm -rf spheroid 2dlaplace ce675p1 ce675p2 heat-explicit heat-cyl meshtest
-	rm -rf diffusion-kelvin
+	rm -rf diffusion-kelvin diffusion
 	rm -rf *.o *.a
 	$(MAKE) -C matrix clean
 	$(MAKE) -C material-data clean
