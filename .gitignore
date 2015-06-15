@@ -23,3 +23,5 @@
 # Ignore CSV files because they shouldn't be included in this repository
 *.csv
 
+# Makefile dependencies
+*.d

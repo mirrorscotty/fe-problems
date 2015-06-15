@@ -1,6 +1,8 @@
 CC=gcc
 CFLAGS=-lm -I. -Imatrix -Imaterial-data -Ife-solver -Wall -g3 -O2
-VPATH=other slab-drying problems/viscoelasticity gui solver/mesh solver/ode solver/integration matrix material-data scaling solver output
+SRC=$(wildcard other/*.c) \
+    $(wildcard slab-drying/*.c) \
+    $(wildcard gui/*.c)
 
 all: diffusion
 
@@ -9,66 +11,49 @@ doc:
 	make -C doc/latex
 	cp doc/latex/refman.pdf doc/Reference.pdf
 
-2dlaplace: 2dlaplace.o fe-solver.a material-data.a matrix.a
+2dlaplace: other/2dlaplace.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-ce675p1: ce675p1.o fe-solver.a material-data.a matrix.a
+ce675p1: other/ce675p1.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-spheroid: spheroid.o fe-solver.a material-data.a matrix.a
+spheroid: other/spheroid.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-ce675p2: ce675p2.o fe-solver.a material-data.a matrix.a
+ce675p2: other/ce675p2.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-heat-explicit: heat-explicit.o fe-solver.a material-data.a matrix.a
+heat-explicit: other/heat-explicit.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-heat-cyl: heat-cyl.o heat-gui.o fe-solver.a material-data.a matrix.a
+heat-cyl: other/heat-cyl.o heat-gui.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-heat-transfer: heat-transfer.o ht-main.o common.o fe-solver.a material-data.a matrix.a
+heat-transfer: slab-drying/heat-transfer.o slab-drying/ht-main.o slab-drying/common.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-ht-mt: diffusion.o heat-transfer.o main.o common.o fe-solver.a material-data.a matrix.a
+ht-mt: slab-drying/diffusion.o slab-drying/heat-transfer.o slab-drying/main.o slab-drying/common.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion: diffusion.o deformation.o mt-main.o common.o output.o fe-solver.a material-data.a matrix.a
+diffusion: slab-drying/diffusion.o slab-drying/deformation.o slab-drying/mt-main.o slab-drying/common.o slab-drying/output.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion-mod: diffusion.o deformation.o lin-genmaxwell.o mt-main.o common-mod.o fe-solver.a material-data.a matrix.a
+diffusion-mod: slab-drying/diffusion.o slab-drying/deformation.o slab-drying/lin-genmaxwell.o slab-drying/mt-main.o slab-drying/common-mod.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion-kelvin: diffusion.o deformation.o lin-genkelvin.o mt-main.o common-kelvin.o fe-solver.a material-data.a matrix.a
+diffusion-kelvin: slab-drying/diffusion.o slab-drying/deformation.o slab-drying/lin-genkelvin.o slab-drying/mt-main.o slab-drying/common-kelvin.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
-
-diffusion.o: diffusion.h common.h
-deformation.o: deformation.h common.h
-lin-maxwell.o: lin-maxwell.h
-lin-genmaxwell.o: lin-genmaxwell.h
-lin-genkelvin.o: lin-genkelvin.h
-mt-main.o: common.h
-common.o: common.h
-common-mod.o: common-mod.h
-common-kelvin.o: common-kelvin.h
 
 clean:
 #rm -rf spheroid 2dlaplace ce675p1 ce675p2 heat-explicit heat-cyl meshtest
 	rm -rf diffusion-kelvin diffusion
-	rm -rf *.o *.a
+	rm -rf $(SRC:.c=.o)
+	rm -rf $(SRC:.c=.d)
+	rm -rf *.a
 	$(MAKE) -C matrix clean
 	$(MAKE) -C material-data clean
 	$(MAKE) -C fe-solver clean
 	rm -rf doc
-
-freezing.o: material-data/freezing/freezing.c material-data/freezing/freezing.h
-	$(CC) -c material-data/freezing/freezing.c $(CFLAGS)
-
-heat-implicit.o: problems/heat-implicit.c
-	$(CC) -c problems/heat-implicit.c $(CFLAGS)
-
-heat-gui.o: heating/heat-gui.c heating/heat-gui.h
-	$(CC) -c gui/heating/heat-gui.c $(CFLAGS)
 
 fe-solver.a:
 	$(MAKE) -C fe-solver fe-solver.a
@@ -81,4 +66,15 @@ matrix.a:
 material-data.a:
 	$(MAKE) -C material-data material-data.a
 	cp material-data/material-data.a .
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $*.c -o $*.o
+	$(CC) -MM $(CFLAGS) $*.c > $*.d
+	@mv -f $*.d $*.d.tmp
+	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
+	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+	@rm -f $*.d.tmp
+
+-include $(OBJ:.o=.d)
 
