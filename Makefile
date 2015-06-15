@@ -44,7 +44,7 @@ diffusion: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-dry
 diffusion-mod: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genmaxwell.o slab-drying/mt-main.o slab-drying/common-mod.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion-kelvin: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genkelvin.o slab-drying/mt-main.o slab-drying/common-kelvin.o fe-solver.a material-data.a matrix.a
+diffusion-kelvin: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genkelvin.o slab-drying/mt-main.o slab-drying/output.o slab-drying/common-kelvin.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean:

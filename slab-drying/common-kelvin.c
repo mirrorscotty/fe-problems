@@ -7,11 +7,11 @@
 
 #include "material-data.h"
 
-#include "heat-transfer.h"
-#include "diffusion.h"
+#include "heat/heat-transfer.h"
+#include "mass/diffusion.h"
 #include "common-kelvin.h"
-#include "lin-genkelvin.h"
-#include "deformation.h"
+#include "solid/lin-genkelvin.h"
+#include "solid/deformation.h"
 
 extern choi_okos *comp_global;
 
