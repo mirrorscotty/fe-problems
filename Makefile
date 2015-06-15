@@ -1,7 +1,10 @@
 CC=gcc
-CFLAGS=-lm -I. -Imatrix -Imaterial-data -Ife-solver -Wall -g3 -O2
+CFLAGS=-lm -I. -Islab-drying -Imatrix -Imaterial-data -Ife-solver -Wall -g3 -O2
 SRC=$(wildcard other/*.c) \
     $(wildcard slab-drying/*.c) \
+    $(wildcard slab-drying/mass*.c) \
+    $(wildcard slab-drying/heat*.c) \
+    $(wildcard slab-drying/solid*.c) \
     $(wildcard gui/*.c)
 
 all: diffusion
@@ -29,19 +32,19 @@ heat-explicit: other/heat-explicit.o fe-solver.a material-data.a matrix.a
 heat-cyl: other/heat-cyl.o heat-gui.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-heat-transfer: slab-drying/heat-transfer.o slab-drying/ht-main.o slab-drying/common.o fe-solver.a material-data.a matrix.a
+heat-transfer: slab-drying/heat/heat-transfer.o slab-drying/ht-main.o slab-drying/common.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-ht-mt: slab-drying/diffusion.o slab-drying/heat-transfer.o slab-drying/main.o slab-drying/common.o fe-solver.a material-data.a matrix.a
+ht-mt: slab-drying/mass/diffusion.o slab-drying/heat/heat-transfer.o slab-drying/main.o slab-drying/common.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion: slab-drying/diffusion.o slab-drying/deformation.o slab-drying/mt-main.o slab-drying/common.o slab-drying/output.o fe-solver.a material-data.a matrix.a
+diffusion: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/mt-main.o slab-drying/common.o slab-drying/output.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion-mod: slab-drying/diffusion.o slab-drying/deformation.o slab-drying/lin-genmaxwell.o slab-drying/mt-main.o slab-drying/common-mod.o fe-solver.a material-data.a matrix.a
+diffusion-mod: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genmaxwell.o slab-drying/mt-main.o slab-drying/common-mod.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-diffusion-kelvin: slab-drying/diffusion.o slab-drying/deformation.o slab-drying/lin-genkelvin.o slab-drying/mt-main.o slab-drying/common-kelvin.o fe-solver.a material-data.a matrix.a
+diffusion-kelvin: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genkelvin.o slab-drying/mt-main.o slab-drying/common-kelvin.o fe-solver.a material-data.a matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean:

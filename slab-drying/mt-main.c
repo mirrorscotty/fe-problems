@@ -10,7 +10,7 @@
 #include "material-data.h"
 
 #include "common.h"
-#include "deformation.h"
+#include "solid/deformation.h"
 
 choi_okos *comp_global;
 

@@ -29,8 +29,8 @@
 #include "fe-solver.h"
 #include "material-data.h"
 
-#include "heat-transfer.h"
-#include "common.h"
+#include "../heat/heat-transfer.h"
+#include "../common.h"
 
 extern choi_okos *comp_global;
 

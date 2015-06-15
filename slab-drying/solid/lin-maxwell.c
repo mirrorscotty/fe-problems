@@ -21,7 +21,7 @@
 
 #include "fe-solver.h"
 #include "matrix.h"
-#include "common.h"
+#include "../common.h"
 #include "deformation.h"
 
 #define EA(X, T) RozziEa((X), (T))

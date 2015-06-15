@@ -23,7 +23,7 @@
 #include "matrix.h"
 #include "fe-solver.h"
 #include "material-data.h"
-#include "common.h"
+#include "../common.h"
 #include "deformation.h"
 #include <math.h>
 #include <stdlib.h>

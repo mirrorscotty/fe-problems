@@ -7,11 +7,11 @@
 
 #include "material-data.h"
 
-#include "heat-transfer.h"
-#include "diffusion.h"
+#include "heat/heat-transfer.h"
+#include "mass/diffusion.h"
 #include "common.h"
-#include "lin-maxwell.h"
-#include "deformation.h"
+#include "solid/lin-maxwell.h"
+#include "solid/deformation.h"
 
 extern choi_okos *comp_global;
 
@@ -131,7 +131,9 @@ matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
  */
 matrix* CreateElementLoad(struct fe1d *p, Elem1D *elem, matrix *guess) {
     basis *b;
+#ifdef SVAR
     double value;
+#endif
     int v = p->nvars, i;
     matrix *m;
 
