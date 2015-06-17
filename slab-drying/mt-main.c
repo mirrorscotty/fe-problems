@@ -9,10 +9,20 @@
 #include "fe-solver.h"
 #include "material-data.h"
 
-#include "common.h"
+#include "common-kelvin.h"
 #include "solid/deformation.h"
+#include "output.h"
 
 choi_okos *comp_global;
+
+int IsDone(struct fe1d *p)
+{
+    double tf = 72000;
+    if(tf < uscaleTime(p->chardiff, CurrentTime(p, p->t)))
+        return 1;
+    else
+        return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -24,7 +34,7 @@ int main(int argc, char *argv[])
 
     solution *s;
     FILE *FPnu;
-    double C, x, dt = 1e-3;
+    double C, x, dt = 1e-10;
     int i, tfinal;
     char *outfile;
 
@@ -38,9 +48,9 @@ int main(int argc, char *argv[])
     /* Create a uniform mesh */
     mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 10);
 
-    tfinal = 3*10*floor(scaleTime(scale_mass, 7200)/dt);
+    //tfinal = 3*10*floor(scaleTime(scale_mass, 7200)/dt);
     //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
-    //tfinal = floor(scaleTime(scale_mass, 1080000/3)/.01);
+    tfinal = 10000;
     printf("tf = %d\n", tfinal);
     problem = CreateFE1D(b, mesh,
                          &CreateDTimeMatrix,
@@ -78,9 +88,6 @@ int main(int argc, char *argv[])
         s = FetchSolution(problem, problem->t-1);
         if(problem->t > 5) {
             problem->dt = StepSize(problem, PredictSolnO2(problem), s->val);
-            printf("New dt = %g\n", StepSize(problem, PredictSolnO2(problem), s->val));
-        } else {
-            printf("\n");
         }
         //problem->t += 1;
 #endif
@@ -106,13 +113,15 @@ int main(int argc, char *argv[])
             }
         }
 #endif
+        if(IsDone(problem))
+            break;
     }
     fclose(FPnu);
 
     PrintScalingValues(problem->chardiff);
 
     //PrintSolution(problem, 1);
-    printf("Solution at t = %g (s):\n", uscaleTime(problem->chardiff, problem->t*problem->dt));
+    printf("Solution at t = %g (s):\n", uscaleTime(problem->chardiff, CurrentTime(problem, problem->t)));
     PrintSolution(problem, problem->t-1);
 /*
     CSVOutFixedNode2(problem, 0, "output00.csv");

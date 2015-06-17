@@ -7,7 +7,7 @@ SRC=$(wildcard other/*.c) \
     $(wildcard slab-drying/solid*.c) \
     $(wildcard gui/*.c)
 
-all: diffusion
+all: diffusion-kelvin
 
 doc:
 	doxygen DoxyFile

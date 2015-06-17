@@ -164,7 +164,7 @@ double EffPorePress(double X, double T)
     //if(Pnet < 0)
         //Pnet = 0;
 
-    return Pnet;
+    return .01*Pnet;
 }
 
 /* Unused */
@@ -315,7 +315,7 @@ double StrainPc(struct fe1d *p, int i, double X, double t)
 
     /* Integrate the creep function from t=0 to t=tf. */
     //e = _StrainPc(p, X, t);
-    e = _StrainPcOpt(p, i, X, t);
+    e = _StrainPc(p, i, X, t);
 
     /* Because we used integration by parts, add in the rest of the integration
      * formula. Because we're using inverse Laplace transforms, use a value

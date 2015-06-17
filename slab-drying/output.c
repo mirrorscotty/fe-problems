@@ -46,7 +46,7 @@ void CSVOutFixedNodeDiff(struct fe1d *p, int row, char *filename)
     fprintf(fp, "Time,DimensionlessTime,Position,WaterFlux,MassFlux\n");
 
     /* Print out the values */
-    for(i=0; i<p->maxsteps; i++) {
+    for(i=0; i<p->t; i++) {
         s = FetchSolution(p, i);
         if(i<1)
             sp = s;
@@ -65,14 +65,14 @@ void CSVOutFixedNodeDiff(struct fe1d *p, int row, char *filename)
         DestroyChoiOkos(comp_wet);
         dx = uscaleLength(p->chardiff, valV(s->mesh->nodes, row))
                 - uscaleLength(p->chardiff, valV(sp->mesh->nodes, row));
-        dt = uscaleTime(p->chardiff, i*p->dt)
-                - uscaleTime(p->chardiff, (i-1)*p->dt);
+        dt = uscaleTime(p->chardiff, CurrentTime(p, i))
+                - uscaleTime(p->chardiff, CurrentTime(p, i-1));
         M = rhot*dx/dt;
 
         X = valV(s->mesh->nodes, row);
 
         fprintf(fp, "%g,%g,%g,%g,%g\n",
-                uscaleTime(p->chardiff, i*p->dt), i*p->dt, X, J, M);
+                uscaleTime(p->chardiff, CurrentTime(p,i)), CurrentTime(p,i), X, J, M);
         //fprintf(fp, "%g,%g,%g\n", rho(comp_global, T), Cp(comp_global, T), k(comp_global, T));
     }
     fprintf(fp, "\n");
@@ -111,14 +111,14 @@ void CSVOutAvg(struct fe1d *p, int var, char *filename)
     fprintf(fp, "Time,Concentration,Displacement\n");
 
     /* Print out the values */
-    for(i=0; i<p->maxsteps; i++) {
+    for(i=0; i<p->t; i++) {
         s = FetchSolution(p, i);
         u = valV(s->mesh->nodes, len(s->mesh->nodes)-1);
 
         C = AvgSoln1DG(p, i, var);
 
         fprintf(fp, "%g,%g,%g\n",
-                uscaleTime(p->chardiff, i*p->dt),
+                uscaleTime(p->chardiff, CurrentTime(p, i)),
                 uscaleTemp(p->chardiff, C),
                 u);
     }
@@ -146,7 +146,7 @@ void CSVOutProfiles(struct fe1d *p, int n, char *filename)
     DestroyMatrix(tmp1);
 
     /* Assume we need an average of 15 characters per profile for a header */
-    header = (char*) calloc(sizeof(char), n*15);
+    header = (char*) calloc(sizeof(char), n*50);
     sprintf(header, ",t=%d", 0);
 
     for(i=1; i<n; i++) {
@@ -162,7 +162,7 @@ void CSVOutProfiles(struct fe1d *p, int n, char *filename)
         DestroyMatrix(tmp2);
 
         /* Then do the header */
-        hdrtmp = (char*) calloc(sizeof(char), 15);
+        hdrtmp = (char*) calloc(sizeof(char), 50);
         sprintf(hdrtmp, ",,t=%g", uscaleTime(p->chardiff, i*dt));
         strcat(header, hdrtmp);
         free(hdrtmp);

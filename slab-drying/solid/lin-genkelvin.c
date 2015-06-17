@@ -33,11 +33,11 @@
 
 /* Stress relaxation parameters from Rozzi */
 #define EA(M, T) \
-    1e6 * (68.18*(1/(1+exp(((M)-250.92*exp(-0.0091*(T)))/2.19))+0.078)) / STRESS0(T)
+    1e6 * (68.18*(1/(1+exp(((M)*100-250.92*exp(-0.0091*(T)))/2.19))+0.078)) / STRESS0(T)
 #define E1(M, T) \
-    1e6 * (20.26*exp(-0.0802*((M)+0.0474*(T)-14.238))) / STRESS0(T)
+    1e6 * (20.26*exp(-0.0802*((M)*100+0.0474*(T)-14.238))) / STRESS0(T)
 #define E2(M, T) \
-    1e6 * (2.484 + 6.576/(1+exp(((M)-19.36)/0.848))) / STRESS0(T)
+    1e6 * (2.484 + 6.576/(1+exp(((M)*100-19.36)/0.848))) / STRESS0(T)
 #define LAMBDA1 scaleTime(p->chardiff, 7)
 #define LAMBDA2 scaleTime(p->chardiff, 110)
 /*
