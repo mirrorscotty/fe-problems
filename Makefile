@@ -14,37 +14,19 @@ doc:
 	make -C doc/latex
 	cp doc/latex/refman.pdf doc/Reference.pdf
 
-2dlaplace: other/2dlaplace.o fe-solver.a material-data.a matrix.a
+heat-transfer: slab-drying/heat/heat-transfer.o slab-drying/ht-main.o slab-drying/common.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-ce675p1: other/ce675p1.o fe-solver.a material-data.a matrix.a
+ht-mt: slab-drying/mass/diffusion.o slab-drying/heat/heat-transfer.o slab-drying/main.o slab-drying/common.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-spheroid: other/spheroid.o fe-solver.a material-data.a matrix.a
+diffusion: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/mt-main.o slab-drying/common.o slab-drying/output.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-ce675p2: other/ce675p2.o fe-solver.a material-data.a matrix.a
+diffusion-mod: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genmaxwell.o slab-drying/mt-main.o slab-drying/common-mod.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
-heat-explicit: other/heat-explicit.o fe-solver.a material-data.a matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-heat-cyl: other/heat-cyl.o heat-gui.o fe-solver.a material-data.a matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-heat-transfer: slab-drying/heat/heat-transfer.o slab-drying/ht-main.o slab-drying/common.o fe-solver.a material-data.a matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-ht-mt: slab-drying/mass/diffusion.o slab-drying/heat/heat-transfer.o slab-drying/main.o slab-drying/common.o fe-solver.a material-data.a matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-diffusion: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/mt-main.o slab-drying/common.o slab-drying/output.o fe-solver.a material-data.a matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-diffusion-mod: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genmaxwell.o slab-drying/mt-main.o slab-drying/common-mod.o fe-solver.a material-data.a matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-diffusion-kelvin: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genkelvin.o slab-drying/mt-main.o slab-drying/output.o slab-drying/common-kelvin.o fe-solver.a material-data.a matrix.a
+diffusion-kelvin: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genkelvin.o slab-drying/solid/kinematics.o slab-drying/mt-main.o slab-drying/output.o slab-drying/common-kelvin.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean:
@@ -58,17 +40,17 @@ clean:
 	$(MAKE) -C fe-solver clean
 	rm -rf doc
 
-fe-solver.a:
+fe-solver/fe-solver.a: force_build
 	$(MAKE) -C fe-solver fe-solver.a
-	cp fe-solver/fe-solver.a .
 
-matrix.a:
+matrix/matrix.a: force_build
 	$(MAKE) -C matrix matrix.a
-	cp matrix/matrix.a .
 
-material-data.a:
+material-data/material-data.a: force_build
 	$(MAKE) -C material-data material-data.a
-	cp material-data/material-data.a .
+
+force_build:
+	true
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $*.c -o $*.o

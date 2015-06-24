@@ -12,6 +12,7 @@
 #include "common-kelvin.h"
 #include "solid/lin-genkelvin.h"
 #include "solid/deformation.h"
+#include "solid/kinematics.h"
 
 extern choi_okos *comp_global;
 
@@ -59,6 +60,8 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &ResMass, i/v, j/v);
             setval(m, value, i+CVAR, j+CVAR);
+            value = quad1d3generic(p, guess, elem, &ResMass_dCdu, i/v, j/v);
+            setval(m, value, i+CVAR, j+SUVAR);
 
             value = quad1d3generic(p, guess, elem, &ResSolid_dTde, i/v, j/v);
             setval(m, value, i+STVAR, j+STVAR);
@@ -67,19 +70,18 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
             value = quad1d3generic(p, guess, elem, &ResSolid_dTdr2, i/v, j/v);
             setval(m, value, i+STVAR, j+SP2VAR);
 
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+SP1VAR, j+STVAR);
             value = quad1d3generic(p, guess, elem, &ResSolid_dP1dr1, i/v, j/v);
             setval(m, value, i+SP1VAR, j+SP1VAR);
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+SP1VAR, j+SP2VAR);
 
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+SP2VAR, j+STVAR);
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+SP2VAR, j+SP1VAR);
             value = quad1d3generic(p, guess, elem, &ResSolid_dP2dr2, i/v, j/v);
             setval(m, value, i+SP2VAR, j+SP2VAR);
+
+#ifdef SUVAR
+            value = quad1d3generic(p, guess, elem, &ResSolid_dudu, i/v, j/v);
+            setval(m, value, i+SUVAR, j+SUVAR);
+            value = quad1d3generic(p, guess, elem, &ResSolid_dude, i/v, j/v);
+            setval(m, value, i+SUVAR, j+STVAR);
+#endif
         }
     }
 
@@ -119,26 +121,17 @@ matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
             value = quad1d3generic(p, guess, elem, &ResDtMass, i/v, j/v);
             setval(m, value, i+CVAR, j+CVAR);
 
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+STVAR, j+STVAR);
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+STVAR, j+SP1VAR);
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+STVAR, j+SP2VAR);
-
-            //value = quad1d3generic(p, guess, elem, &ResDtSolid_dP1de, i/v, j/v);
-            //setval(m, value, i+SP1VAR, j+STVAR);
             value = quad1d3generic(p, guess, elem, &ResDtSolid_dP1dr1, i/v, j/v);
             setval(m, value, i+SP1VAR, j+SP1VAR);
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+SP1VAR, j+SP2VAR);
 
-            //value = quad1d3generic(p, guess, elem, &ResDtSolid_dP2de, i/v, j/v);
-            //setval(m, value, i+SP2VAR, j+STVAR);
-            value = quad1d3generic(p, guess, elem, &ResSolid_zero, i/v, j/v);
-            setval(m, value, i+SP2VAR, j+SP1VAR);
             value = quad1d3generic(p, guess, elem, &ResDtSolid_dP2dr2, i/v, j/v);
             setval(m, value, i+SP2VAR, j+SP2VAR);
+
+#ifdef SVVAR
+            value = quad1d3generic(p, guess, elem, &ResDtSolid_dvde, i/v, j/v);
+            setval(m, value, i+SVVAR, j+STVAR);
+#endif
+
         }
     }
 
@@ -205,6 +198,11 @@ int IsOnLeftBoundary(struct fe1d *p, int row)
         return 0;
 }
 
+double Zero(struct fe1d *p, int row)
+{
+    return 0;
+}
+
 /**
  * Take the tests functions that define where the boundaries are and the
  * functions for boundary conditions and apply them to the problem. This is
@@ -240,12 +238,10 @@ void ApplyAllBCs(struct fe1d *p)
         ApplyEssentialBC1D(p, CVAR, &IsOnRightBoundary, &ExternalConc);
 #endif
 
-#ifdef VAP_MODEL
-    if(Bim<100.00)
-        ApplyNaturalBC1D(p, PVAR, &IsOnRightBoundary, &ConvBCVap);
-    else
-        ApplyEssentialBC1D(p, PVAR, &IsOnRightBoundary, &ExternalConc);
+#ifdef SUVAR
+    ApplyEssentialBC1D(p, SUVAR, &IsOnLeftBoundary, &Zero);
 #endif
+
     return;
 }
 

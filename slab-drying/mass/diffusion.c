@@ -61,9 +61,9 @@ double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
     double term1 = 0, term2 = 0, term3 = 0,
            /* These hold the values for diffusivity and gradient of diffusivity
             * once they've been calculated */
-           DDDx = 0, D = 0,
+           DDDx = 0, D = 0, u = 0,
            /* D and grad(D) on the nodes */
-           Di, Ci, Ti,
+           Di, Ci, Ti,ui,
            /* Final value of the function */
            value = 0;
     int i;
@@ -82,9 +82,12 @@ double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         //Di = DIFF(uscaleTemp(p->chardiff, Ci), uscaleTemp(p->charvals, Ti));
         Di = DIFF(uscaleTemp(p->chardiff, Ci), TINIT);
-        //printf("Di = %g\n", Di);
         D += Di * b->phi[i](x);
         DDDx += Di * b->dphi[i](x);
+#ifdef SUVAR
+        ui = EvalSoln1D(p, SUVAR, elem, s, valV(elem->points, i));
+        u += ui * b->phi[i](x);
+#endif
     }
     /* Then delete the temporary solution we made earlier. */
     free(s);
@@ -98,18 +101,42 @@ double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
     /* Now that we have the gradient of thermal conductivity, we can calculate
      * the value of the term containing it. */
     term2 = DDDx * b->dphi[f1](x) * b->phi[f2](x);
-    term2 *= 1/IMap1D(p, elem, x);
+    //term2 *= 1/IMap1D(p, elem, x);
     /* Hopefully the above term is correct. It appears to yield accurate
      * results, at least. */
 
     /* This determines the value of the term that arises due to the moving
      * mesh. */
+#ifdef SUVAR
+    term3 = u * b->phi[f1](x) * b->dphi[f1](x) * b->phi[f1](x);
+#else
     term3 = b->dphi[f1](x) * IMapDt1D(p, elem, x);
     term3 *= b->phi[f2](x);
-    term3 *= 1/IMap1D(p, elem, x);
+    //term3 *= 1/IMap1D(p, elem, x);
+#endif
 
     /* Combine all the terms and return the result */
-    value = (term1 - term2)/p->chardiff.alpha + term3;
+    value = (term1 - term2)/p->chardiff.alpha;// + term3;
+    return value;
+}
+
+double ResMass_dCdu(struct fe1d *p, matrix *guess, Elem1D *elem,
+                    double x, int f1, int f2)
+{
+    int i;
+    double value = 0, Ci = 0, C = 0;
+    basis *b;
+    solution *s;
+
+    b = p->b;
+    s = CreateSolution(p->t, p->dt, guess);
+    for(i=0; i<b->n; i++) {
+        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
+        C += Ci * b->phi[i](x);
+    }
+    free(s);
+
+    value = C * b->phi[f1](x)*b->dphi[f1](x)*b->phi[f2](x);
     return value;
 }
 

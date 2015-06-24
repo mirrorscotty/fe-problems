@@ -164,21 +164,7 @@ double EffPorePress(double X, double T)
     //if(Pnet < 0)
         //Pnet = 0;
 
-    return .01*Pnet;
-}
-
-/* Unused */
-double PrevStrain(struct fe1d *p, double X, int t)
-{
-    solution *s;
-    double e = 0;
-    if(t==0)
-        return 0;
-    s = FetchSolution(p, t);
-
-    e = EvalSoln1DG(p, -1, s, X, 1);
-
-    return e;
+    return Pnet;
 }
 
 /**

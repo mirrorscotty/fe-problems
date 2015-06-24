@@ -1,6 +1,9 @@
 /**
  * @file lin-genkelvin.c
  *
+ * The viscoelasticity equations are taken from The Finite Element Method for
+ * Solid and Structural Mechanics (Seventh Edition) by Zienkiewicz, Taylor, and
+ * Fox.
  * Viscoelasticity differential equations for generalized Kelvin model
  * Primary equation
  * \f[
@@ -29,7 +32,7 @@
 #include <stdlib.h>
 
 #define STRESS0(T) EffPorePress(CINIT/CAMB, (T))
-#define STRESS(X, T) (EffPorePress((X), (T)) / STRESS0(T))
+#define STRESS(X, T) (EffPorePress((X), (T)) * 0.01 / STRESS0(T))
 
 /* Stress relaxation parameters from Rozzi */
 #define EA(M, T) \
@@ -41,13 +44,18 @@
 #define LAMBDA1 scaleTime(p->chardiff, 7)
 #define LAMBDA2 scaleTime(p->chardiff, 110)
 /*
-#define EA(M, T) 1/1.87e-6
-#define E1(M, T) 1/1.19e-7
-#define E2(M, T) 1/2.16e-7
-#define LAMBDA1 2.058
-#define LAMBDA2 24.425
+#define J0(M, T) 1.03549e-07
+#define J1(M, T) 5.24539e-08
+#define J2(M, T) 6.23371e-08
+#define TAU1 10
+#define TAU2 1000
 */
 
+#define J0(M, T) 2.19837e-08 * STRESS0(T)
+#define J1(M, T) 1.38996e-08 * STRESS0(T)
+#define J2(M, T) 1.12069e-08 * STRESS0(T)
+#define TAU1 10
+#define TAU2 1000
 
 /**
  * Derivative of the main differential equation with respect to strain
@@ -73,7 +81,7 @@ double ResSolid_dTdr1(struct fe1d *p, matrix *guess, Elem1D *elem,
 {
     double T = TINIT,
            C = 0,
-           e1 = 0,
+           j1 = 0,
            Ci, value;
     int i;
     basis *b;
@@ -87,10 +95,10 @@ double ResSolid_dTdr1(struct fe1d *p, matrix *guess, Elem1D *elem,
         Ci = uscaleTemp(p->chardiff, Ci);
 
         C += Ci * b->phi[i](x);
-        e1 += E1(Ci, T) * b->phi[i](x);
+        j1 += J1(Ci, T) * b->phi[i](x);
     }
 
-    value = 1/e1 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
+    value = j1 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
     free(s);
     return value;
 }
@@ -104,7 +112,7 @@ double ResSolid_dTdr2(struct fe1d *p, matrix *guess, Elem1D *elem,
 {
     double T = TINIT,
            C = 0,
-           e2 = 0,
+           j2 = 0,
            Ci, value;
     int i;
     basis *b;
@@ -118,10 +126,10 @@ double ResSolid_dTdr2(struct fe1d *p, matrix *guess, Elem1D *elem,
         Ci = uscaleTemp(p->chardiff, Ci);
 
         C += Ci * b->phi[i](x);
-        e2 += E2(Ci, T) * b->phi[i](x);
+        j2 += J2(Ci, T) * b->phi[i](x);
     }
 
-    value = 1/e2 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
+    value = j2 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
     free(s);
     return value;
 }
@@ -166,13 +174,14 @@ double ResDtSolid_dP2dr2(struct fe1d *p, matrix *guess, Elem1D *elem,
     return p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
+
 double ResFSolid_T(struct fe1d *p, matrix *guess, Elem1D *elem,
                    double x, int f1, int a)
 {
     double T = TINIT,
            C = 0,
            sigma = 0,
-           Ea = 0,
+           j0 = 0,
            Ci;
     int i;
     solution *s;
@@ -185,11 +194,11 @@ double ResFSolid_T(struct fe1d *p, matrix *guess, Elem1D *elem,
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         Ci = uscaleTemp(p->chardiff, Ci);
         C += Ci;
-        Ea += EA(Ci, T) * b->phi[i](x);
+        j0 += J0(Ci, T) * b->phi[i](x);
         sigma += STRESS(Ci, T) * b->phi[i](x);
     }
     free(s);
-    return sigma/Ea;// * b->phi[f1](x);
+    return sigma*j0 / IMap1D(p, elem, x);
 }
 
 double ResFSolid_P1(struct fe1d *p, matrix *guess, Elem1D *elem,
@@ -213,7 +222,7 @@ double ResFSolid_P1(struct fe1d *p, matrix *guess, Elem1D *elem,
         sigma += STRESS(Ci, T) * b->phi[i](x);
     }
     free(s);
-    return -1*sigma;// * b->phi[f1](x);
+    return -1*sigma / IMap1D(p, elem, x);
 }
 
 double ResFSolid_P2(struct fe1d *p, matrix *guess, Elem1D *elem,
@@ -237,6 +246,6 @@ double ResFSolid_P2(struct fe1d *p, matrix *guess, Elem1D *elem,
         sigma += STRESS(Ci, T) * b->phi[i](x);
     }
     free(s);
-    return -1*sigma;// * b->phi[f1](x);
+    return -1*sigma / IMap1D(p, elem, x);
 }
 

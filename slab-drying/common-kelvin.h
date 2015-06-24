@@ -1,10 +1,14 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define CVAR 0
-#define STVAR 1
-#define SP1VAR 2
-#define SP2VAR 3
+#define NEQ 5
+
+#define CVAR 0 /* Concentration */
+#define STVAR 1 /* Total strain */
+#define SP1VAR 2 /* Partial stress #1 */
+#define SP2VAR 3 /* Partial stress #2 */
+//#define SVVAR 4 /* Velocity */
+#define SUVAR 4 /* Displacement */
 
 //#define TAMB 310 // K
 //#define TAMB 500 // K

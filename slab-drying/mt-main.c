@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     solution *s;
     FILE *FPnu;
-    double C, x, dt = 1e-10;
+    double C, x, dt = 1e-12;
     int i, tfinal;
     char *outfile;
 
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
                          &ApplyAllBCs,
                          tfinal);
 #ifdef SHRINKAGE_DIFFEQ
-    problem->nvars = 4; /* Number of simultaneous PDEs to solve */
+    problem->nvars = NEQ; /* Number of simultaneous PDEs to solve */
 #else
     problem->nvars = 1;
 #endif
