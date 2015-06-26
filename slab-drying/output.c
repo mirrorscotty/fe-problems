@@ -10,7 +10,7 @@
 
 #include "fe-solver.h"
 #include "material-data.h"
-#include "common.h"
+#include "common-kelvin.h"
 
 extern choi_okos *comp_global;
 
@@ -31,6 +31,8 @@ void CSVOutFixedNodeDiff(struct fe1d *p, int row, char *filename)
     solution *s, *sp;
     double C, X, dC, dx, dt, M, J, rhot;
     choi_okos *comp_dry, *comp_wet;
+
+    row = row * p->nvars;
 
     fp = fopen(filename, "w+");
 
@@ -53,18 +55,16 @@ void CSVOutFixedNodeDiff(struct fe1d *p, int row, char *filename)
         else
             sp = FetchSolution(p, i-1);
 
-        C = uscaleTemp(p->chardiff, val(s->val, row, 0));
+        C = uscaleTemp(p->chardiff, val(s->val, row+CVAR, 0));
         //dC = EvalDSoln1DG(p, 0, s, valV(p->mesh->orig->nodes, row), 0);
-        dC = uscaleTemp(p->chardiff, val(s->val, row, 0))
-                - uscaleTemp(p->chardiff, val(s->val, row-1, 0));
-        dx = uscaleLength(p->chardiff, valV(s->mesh->nodes, row))
-                - uscaleLength(p->chardiff, valV(s->mesh->nodes, row-1));
+        dC = uscaleTemp(p->chardiff, val(s->val, row+CVAR, 0))
+                - uscaleTemp(p->chardiff, val(s->val, row-p->nvars+CVAR, 0));
+        dx = uscaleLength(p->chardiff, valV(s->mesh->nodes, row/p->nvars))
+                - uscaleLength(p->chardiff, valV(s->mesh->nodes, row/p->nvars-1));
         J = -1*DiffCh10(C, TINIT)*dC/dx;
         comp_wet = AddDryBasis(comp_dry, C);
         rhot = rho(comp_wet, TINIT);
         DestroyChoiOkos(comp_wet);
-        dx = uscaleLength(p->chardiff, valV(s->mesh->nodes, row))
-                - uscaleLength(p->chardiff, valV(sp->mesh->nodes, row));
         dt = uscaleTime(p->chardiff, CurrentTime(p, i))
                 - uscaleTime(p->chardiff, CurrentTime(p, i-1));
         M = rhot*dx/dt;
@@ -73,7 +73,6 @@ void CSVOutFixedNodeDiff(struct fe1d *p, int row, char *filename)
 
         fprintf(fp, "%g,%g,%g,%g,%g\n",
                 uscaleTime(p->chardiff, CurrentTime(p,i)), CurrentTime(p,i), X, J, M);
-        //fprintf(fp, "%g,%g,%g\n", rho(comp_global, T), Cp(comp_global, T), k(comp_global, T));
     }
     fprintf(fp, "\n");
 
@@ -113,7 +112,8 @@ void CSVOutAvg(struct fe1d *p, int var, char *filename)
     /* Print out the values */
     for(i=0; i<p->t; i++) {
         s = FetchSolution(p, i);
-        u = valV(s->mesh->nodes, len(s->mesh->nodes)-1);
+        //u = valV(s->mesh->nodes, len(s->mesh->nodes)-1);
+        u = EvalDSoln1DG(p, SUVAR, s, 1.0, 0);
 
         C = AvgSoln1DG(p, i, var);
 

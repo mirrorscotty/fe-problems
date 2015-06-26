@@ -147,8 +147,10 @@ int main(int argc, char *argv[])
 
     free(outfile);
 
+#ifdef SHRINKAGE
     PrintVector(problem->mesh->orig->nodes);
     PrintVector(problem->mesh->nodes);
+#endif
 
     /* Clean up */
     DestroyFE1D(problem);

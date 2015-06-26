@@ -35,6 +35,7 @@
 #define STRESS(X, T) (EffPorePress((X), (T)) * 0.01 / STRESS0(T))
 
 /* Stress relaxation parameters from Rozzi */
+/*
 #define EA(M, T) \
     1e6 * (68.18*(1/(1+exp(((M)*100-250.92*exp(-0.0091*(T)))/2.19))+0.078)) / STRESS0(T)
 #define E1(M, T) \
@@ -43,19 +44,23 @@
     1e6 * (2.484 + 6.576/(1+exp(((M)*100-19.36)/0.848))) / STRESS0(T)
 #define LAMBDA1 scaleTime(p->chardiff, 7)
 #define LAMBDA2 scaleTime(p->chardiff, 110)
-/*
-#define J0(M, T) 1.03549e-07
-#define J1(M, T) 5.24539e-08
-#define J2(M, T) 6.23371e-08
-#define TAU1 10
-#define TAU2 1000
 */
 
-#define J0(M, T) 2.19837e-08 * STRESS0(T)
-#define J1(M, T) 1.38996e-08 * STRESS0(T)
-#define J2(M, T) 1.12069e-08 * STRESS0(T)
-#define TAU1 10
-#define TAU2 1000
+/* T=333, M=.05 */
+/*
+#define J0(M, T) 0.0000001277843 * STRESS0(T)
+#define J1(M, T) 0.0000000003709738 * STRESS0(T)
+#define J2(M, T) 0.00000005988386 * STRESS0(T)
+#define TAU1 scaleTime(p->chardiff, 7.031237)
+#define TAU2 scaleTime(p->chardiff, 161.3902)
+*/
+
+/* T=333, M=.4 */
+#define J0(M, T) 0.0000001280454 * STRESS0(T)
+#define J1(M, T) 0.0000000001208583 * STRESS0(T)
+#define J2(M, T) 0.0000000598729 * STRESS0(T)
+#define TAU1 scaleTime(p->chardiff, 7.03917)
+#define TAU2 scaleTime(p->chardiff, 161.3831)
 
 /**
  * Derivative of the main differential equation with respect to strain
@@ -147,7 +152,7 @@ double ResSolid_zero(struct fe1d *p, matrix *guess, Elem1D *elem,
 double ResSolid_dP1dr1(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
-    return 1/LAMBDA1
+    return 1/TAU1
         * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
@@ -158,7 +163,7 @@ double ResSolid_dP1dr1(struct fe1d *p, matrix *guess, Elem1D *elem,
 double ResSolid_dP2dr2(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
-    return 1/LAMBDA2
+    return 1/TAU2
         * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
