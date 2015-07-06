@@ -34,23 +34,24 @@ int main(int argc, char *argv[])
 
     solution *s;
     FILE *FPnu;
-    double C, x, dt = 1e-12;
-    int i, tfinal;
+    double dt = 1e-15;
+    int tfinal;
     char *outfile;
 
     comp_global = CreateChoiOkos(0, 0, 0, 1, 0, 0, 0);
-    scale_mass = SetupScaling(DIFF(CINIT, TINIT), CINIT, CAMB, THICKNESS, DIFF(CINIT, TINIT), KC_CONV*1e10);
+    scale_mass = SetupScaling(DIFF(CINIT, TINIT), CINIT, CAMB, THICKNESS, DIFF(CINIT, TINIT), KC_CONV);
     //scale_mass = SetupScaling(1, CINIT, CAMB, 1, 1, HCONV);
 
     /* Make a linear 1D basis */
     b = MakeLinBasis(1);
 
     /* Create a uniform mesh */
-    mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 10);
+    mesh = GenerateUniformMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 20);
+//    mesh = GenerateSkewRightMesh1D(b, 0.0, scaleLength(scale_mass, THICKNESS), 20);
 
     //tfinal = 3*10*floor(scaleTime(scale_mass, 7200)/dt);
     //tfinal = floor(scaleTime(scale_mass, 72000)/.01);
-    tfinal = 10000;
+    tfinal = 1000000;
     printf("tf = %d\n", tfinal);
     problem = CreateFE1D(b, mesh,
                          &CreateDTimeMatrix,
@@ -79,7 +80,7 @@ int main(int argc, char *argv[])
     fprintf(FPnu, "t,x,Xdb,nu\n");
     while(problem->t<problem->maxsteps) {
         //printf("Step %d of %d\r", problem->t, problem->maxsteps);
-        printf("Step %d of %d\r", problem->t, problem->maxsteps);
+        printf("Step %d of %d, (t = %g)\r", problem->t, problem->maxsteps, uscaleTime(problem->chardiff, CurrentTime(problem, problem->t)));
         fflush(stdout);
         NLinSolve1DTransImp(problem, NULL);
 

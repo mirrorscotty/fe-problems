@@ -113,7 +113,11 @@ void CSVOutAvg(struct fe1d *p, int var, char *filename)
     for(i=0; i<p->t; i++) {
         s = FetchSolution(p, i);
         //u = valV(s->mesh->nodes, len(s->mesh->nodes)-1);
+#ifdef SUVAR
         u = EvalDSoln1DG(p, SUVAR, s, 1.0, 0);
+#else
+        u = 0;
+#endif
 
         C = AvgSoln1DG(p, i, var);
 

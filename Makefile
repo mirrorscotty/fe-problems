@@ -62,4 +62,3 @@ force_build:
 	@rm -f $*.d.tmp
 
 -include $(OBJ:.o=.d)
-

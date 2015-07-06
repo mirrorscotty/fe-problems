@@ -7,7 +7,6 @@
 #define STVAR 1 /* Total strain */
 #define SP1VAR 2 /* Partial stress #1 */
 #define SP2VAR 3 /* Partial stress #2 */
-//#define SVVAR 4 /* Velocity */
 #define SUVAR 4 /* Displacement */
 
 //#define TAMB 310 // K
@@ -15,16 +14,16 @@
 //#define TINIT 273 //K
 //#define TINIT 313.15 //K
 //#define TINIT 353.15 //K
-#define TINIT 333 //K
+#define TINIT 353 //K
 #define HCONV 50
 
-#define CAMB 0.05 // kg/kg db
+#define CAMB 0.25 // kg/kg db
 //#define CAMB 0.0861867 // kg/kg db (RH=.65, T=80C)
 //#define CAMB 0.138 // kg/kg db (RH=.65, T=40C)
 //#define CAMB 0.0975028 // kg/kg db (RH=.7, T=80C)
 //#define CAMB 0.15049 // kg/kg db (RH=.7, T=40C)
-#define CINIT .5 // kg/kg db
-#define KC_CONV 2e-11
+#define CINIT .4 // kg/kg db
+#define KC_CONV 2e-11*1e10
 
 #define THICKNESS 1e-3
 

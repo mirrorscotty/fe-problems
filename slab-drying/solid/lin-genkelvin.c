@@ -26,13 +26,14 @@
 #include "matrix.h"
 #include "fe-solver.h"
 #include "material-data.h"
-#include "../common.h"
+#include "../common-kelvin.h"
 #include "deformation.h"
 #include <math.h>
 #include <stdlib.h>
 
 #define STRESS0(T) EffPorePress(CINIT/CAMB, (T))
-#define STRESS(X, T) (EffPorePress((X), (T)) * 0.01 / STRESS0(T))
+#define STRESS(X, T, e) (EffPorePress((X), (T)) * 0.1 * porosity((X), (T), (e)) / STRESS0(T))
+//#define STRESS(X, T, e) (EffPorePress((X), (T)) * .0001 / STRESS0(T))
 
 /* Stress relaxation parameters from Rozzi */
 /*
@@ -48,19 +49,27 @@
 
 /* T=333, M=.05 */
 /*
-#define J0(M, T) 0.0000001277843 * STRESS0(T)
-#define J1(M, T) 0.0000000003709738 * STRESS0(T)
-#define J2(M, T) 0.00000005988386 * STRESS0(T)
-#define TAU1 scaleTime(p->chardiff, 7.031237)
-#define TAU2 scaleTime(p->chardiff, 161.3902)
+#define J0(M, T) 1.081284e-08 * STRESS0(T)
+#define J1(M, T) 1.616248e-09 * STRESS0(T)
+#define J2(M, T) 1.614146e-09 * STRESS0(T)
+#define TAU1(M, T) scaleTime(p->chardiff, 8.057304e+00)
+#define TAU2(M, T) scaleTime(p->chardiff, 1.241419e+02)
 */
 
 /* T=333, M=.4 */
-#define J0(M, T) 0.0000001280454 * STRESS0(T)
-#define J1(M, T) 0.0000000001208583 * STRESS0(T)
-#define J2(M, T) 0.0000000598729 * STRESS0(T)
-#define TAU1 scaleTime(p->chardiff, 7.03917)
-#define TAU2 scaleTime(p->chardiff, 161.3831)
+/*
+#define J0(M, T) 1.036386e-07 * STRESS0(T)
+#define J1(M, T) 2.268417e-08 * STRESS0(T)
+#define J2(M, T) 6.040908e-08 * STRESS0(T)
+#define TAU1(M, T) scaleTime(p->chardiff, 8.575243e+00)
+#define TAU2(M, T) scaleTime(p->chardiff, 1.618177e+02)
+*/
+#define CREEPFILE "output.csv"
+#define J0(M, T) CreepLookupJ0(CREEPFILE, T, M) * STRESS0(T)
+#define J1(M, T) CreepLookupJ1(CREEPFILE, T, M) * STRESS0(T)
+#define J2(M, T) CreepLookupJ2(CREEPFILE, T, M) * STRESS0(T)
+#define TAU1(M, T) scaleTime(p->chardiff, CreepLookupTau1(CREEPFILE, T, M))
+#define TAU2(M, T) scaleTime(p->chardiff, CreepLookupTau2(CREEPFILE, T, M))
 
 /**
  * Derivative of the main differential equation with respect to strain
@@ -152,7 +161,26 @@ double ResSolid_zero(struct fe1d *p, matrix *guess, Elem1D *elem,
 double ResSolid_dP1dr1(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
-    return 1/TAU1
+    double T = TINIT,
+           C = 0,
+           tau1 = 0,
+           Ci;
+    int i;
+    basis *b;
+    b = p->b;
+
+    solution *s;
+    s = CreateSolution(p->t, p->dt, guess);
+
+    for(i=0; i<b->n; i++) {
+        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
+        Ci = uscaleTemp(p->chardiff, Ci);
+
+        C += Ci * b->phi[i](x);
+        tau1 += TAU1(Ci, T) * b->phi[i](x);
+    }
+    free(s);
+    return 1/tau1
         * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
@@ -163,7 +191,26 @@ double ResSolid_dP1dr1(struct fe1d *p, matrix *guess, Elem1D *elem,
 double ResSolid_dP2dr2(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
-    return 1/TAU2
+    double T = TINIT,
+           C = 0,
+           tau2 = 0,
+           Ci;
+    int i;
+    basis *b;
+    b = p->b;
+
+    solution *s;
+    s = CreateSolution(p->t, p->dt, guess);
+
+    for(i=0; i<b->n; i++) {
+        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
+        Ci = uscaleTemp(p->chardiff, Ci);
+
+        C += Ci * b->phi[i](x);
+        tau2 += TAU2(Ci, T) * b->phi[i](x);
+    }
+    free(s);
+    return 1/tau2
         * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
@@ -186,8 +233,9 @@ double ResFSolid_T(struct fe1d *p, matrix *guess, Elem1D *elem,
     double T = TINIT,
            C = 0,
            sigma = 0,
+           epsilon = 0,
            j0 = 0,
-           Ci;
+           Ci, ei;
     int i;
     solution *s;
     basis *b;
@@ -198,9 +246,11 @@ double ResFSolid_T(struct fe1d *p, matrix *guess, Elem1D *elem,
     for(i=0; i<b->n; i++) {
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         Ci = uscaleTemp(p->chardiff, Ci);
-        C += Ci;
+        ei = EvalSoln1D(p, STVAR, elem, s, valV(elem->points, i));
+        epsilon += ei * b->phi[i](x);
+        C += Ci * b->phi[i](x);
         j0 += J0(Ci, T) * b->phi[i](x);
-        sigma += STRESS(Ci, T) * b->phi[i](x);
+        sigma += STRESS(Ci, T, epsilon) * b->phi[i](x);
     }
     free(s);
     return sigma*j0 / IMap1D(p, elem, x);
@@ -212,7 +262,8 @@ double ResFSolid_P1(struct fe1d *p, matrix *guess, Elem1D *elem,
     double T = TINIT,
            C = 0,
            sigma = 0,
-           Ci;
+           epsilon = 0,
+           Ci, ei;
     int i;
     solution *s;
     basis *b;
@@ -223,8 +274,10 @@ double ResFSolid_P1(struct fe1d *p, matrix *guess, Elem1D *elem,
     for(i=0; i<b->n; i++) {
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         Ci = uscaleTemp(p->chardiff, Ci);
-        C += Ci;
-        sigma += STRESS(Ci, T) * b->phi[i](x);
+        ei = EvalSoln1D(p, STVAR, elem, s, valV(elem->points, i));
+        epsilon += ei * b->phi[i](x);
+        C += Ci * b->phi[i](x);
+        sigma += STRESS(Ci, T, epsilon) * b->phi[i](x);
     }
     free(s);
     return -1*sigma / IMap1D(p, elem, x);
@@ -236,7 +289,8 @@ double ResFSolid_P2(struct fe1d *p, matrix *guess, Elem1D *elem,
     double T = TINIT,
            C = 0,
            sigma = 0,
-           Ci;
+           epsilon = 0,
+           Ci, ei;
     int i;
     solution *s;
     basis *b;
@@ -247,8 +301,12 @@ double ResFSolid_P2(struct fe1d *p, matrix *guess, Elem1D *elem,
     for(i=0; i<b->n; i++) {
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
         Ci = uscaleTemp(p->chardiff, Ci);
-        C += Ci;
-        sigma += STRESS(Ci, T) * b->phi[i](x);
+        ei = EvalSoln1D(p, STVAR, elem, s, valV(elem->points, i));
+
+        epsilon += ei * b->phi[i](x);
+        C += Ci * b->phi[i](x);
+
+        sigma += STRESS(Ci, T, epsilon) * b->phi[i](x);
     }
     free(s);
     return -1*sigma / IMap1D(p, elem, x);
