@@ -139,12 +139,12 @@ int main(int argc, char *argv[])
 */
     outfile = (char*) calloc(sizeof(char), 30);
 
-    sprintf(outfile, "OutAvg-%gK.csv", (double) TINIT);
+    sprintf(outfile, "OutAvg-%gK-%g.csv", (double) TINIT, CAMB);
     CSVOutAvg(problem, CVAR, outfile);
-    sprintf(outfile, "OutD-%gK.csv", (double) TINIT);
-    CSVOutFixedNodeDiff(problem, 10, outfile);
-    sprintf(outfile, "OutProfile-%gK.csv", (double) TINIT);
-    CSVOutProfiles(problem, 15, outfile);
+    sprintf(outfile, "OutD-%gK-%g.csv", (double) TINIT, CAMB);
+    CSVOutFixedNodeDiff2(problem, 20, outfile);
+    sprintf(outfile, "OutProfile-%gK-%g.csv", (double) TINIT, CAMB);
+    CSVOutProfiles2(problem, 15, outfile);
 
     free(outfile);
 
