@@ -2,6 +2,7 @@
 #include "../common.h"
 #include "deformation.h"
 #include "material-data.h"
+#include "matrix.h"
 
 extern choi_okos *comp_global;
 

@@ -32,8 +32,8 @@
 #include <stdlib.h>
 
 #define STRESS0(T) EffPorePress(CINIT/CAMB, (T))
-#define STRESS(X, T, e) (EffPorePress((X), (T)) * 0.1 * porosity((X), (T), (e)) / STRESS0(T))
-//#define STRESS(X, T, e) (EffPorePress((X), (T)) * .0001 / STRESS0(T))
+//#define STRESS(X, T, e) (EffPorePress((X), (T)) * 0.1 * porosity((X), (T), (e)) / STRESS0(T))
+#define STRESS(X, T, e) (EffPorePress((X), (T)) * .1 / STRESS0(T))
 
 /* Stress relaxation parameters from Rozzi */
 /*
