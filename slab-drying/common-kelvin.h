@@ -26,7 +26,7 @@
 //#define CAMB 0.160262 // kg/kg db
 //#define CAMB 0.140196
 //#define CAMB 0.074695
-#define CAMB .06
+//#define CAMB .06
 //#define CAMB 0.0861867 // kg/kg db (RH=.65, T=80C)
 //#define CAMB 0.138 // kg/kg db (RH=.65, T=40C)
 //#define CAMB 0.0975028 // kg/kg db (RH=.7, T=80C)

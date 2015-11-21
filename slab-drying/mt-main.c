@@ -14,6 +14,7 @@
 #include "output.h"
 
 choi_okos *comp_global;
+double Camb;
 
 int IsDone(struct fe1d *p)
 {
@@ -39,9 +40,17 @@ int main(int argc, char *argv[])
     int tfinal;
     char *outfile;
 
+    if(argc != 2) {
+        printf("Usage:\n"
+               "diffusion-kelvin <Camb>\n");
+        exit(0);
+    } else {
+        Camb = atof(argv[1]);
+    }
+
     comp_global = CreateChoiOkos(0, 0, 0, 1, 0, 0, 0);
-    scale_mass = SetupScaling(DIFF(CINIT, TINIT), CINIT, CAMB, THICKNESS, DIFF(CINIT, TINIT), KC_CONV);
-    //scale_mass = SetupScaling(1, CINIT, CAMB, 1, 1, HCONV);
+    scale_mass = SetupScaling(DIFF(CINIT, TINIT), CINIT, Camb, THICKNESS, DIFF(CINIT, TINIT), KC_CONV);
+    //scale_mass = SetupScaling(1, CINIT, Camb, 1, 1, HCONV);
 
     /* Make a linear 1D basis */
     b = MakeLinBasis(1);
@@ -140,11 +149,11 @@ int main(int argc, char *argv[])
 */
     outfile = (char*) calloc(sizeof(char), 30);
 
-    sprintf(outfile, "OutAvg-%gK-%g.csv", (double) TINIT, CAMB);
+    sprintf(outfile, "OutAvg-%gK-%g.csv", (double) TINIT, Camb);
     CSVOutAvg(problem, CVAR, outfile);
-    sprintf(outfile, "OutD-%gK-%g.csv", (double) TINIT, CAMB);
+    sprintf(outfile, "OutD-%gK-%g.csv", (double) TINIT, Camb);
     CSVOutFixedNodeDiff2(problem, 20, outfile);
-    sprintf(outfile, "OutProfile-%gK-%g.csv", (double) TINIT, CAMB);
+    sprintf(outfile, "OutProfile-%gK-%g.csv", (double) TINIT, Camb);
     CSVOutProfiles2(problem, 15, outfile);
 
     free(outfile);

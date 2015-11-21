@@ -15,6 +15,7 @@
 #include "solid/kinematics.h"
 
 extern choi_okos *comp_global;
+extern double Camb;
 
 /**
  * Calculate an average diffusivity for the entire drying process. The
@@ -26,7 +27,7 @@ extern choi_okos *comp_global;
  */
 double DiffAvg(double Xdb, double T)
 {
-    return DiffCh10((CINIT+CAMB)/2, TINIT);
+    return DiffCh10((CINIT+Camb)/2, TINIT);
 }
 
 /**

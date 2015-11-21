@@ -14,24 +14,12 @@ doc:
 	make -C doc/latex
 	cp doc/latex/refman.pdf doc/Reference.pdf
 
-heat-transfer: slab-drying/heat/heat-transfer.o slab-drying/ht-main.o slab-drying/common.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-ht-mt: slab-drying/mass/diffusion.o slab-drying/heat/heat-transfer.o slab-drying/main.o slab-drying/common.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-diffusion: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/mt-main.o slab-drying/common.o slab-drying/output.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
-diffusion-mod: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genmaxwell.o slab-drying/mt-main.o slab-drying/common-mod.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
-	$(CC) -o $@ $^ $(CFLAGS)
-
 diffusion-kelvin: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genkelvin.o slab-drying/solid/kinematics.o slab-drying/mt-main.o slab-drying/output.o slab-drying/common-kelvin.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean:
 #rm -rf spheroid 2dlaplace ce675p1 ce675p2 heat-explicit heat-cyl meshtest
-	rm -rf diffusion-kelvin diffusion
+	rm -rf diffusion-kelvin
 	rm -rf $(SRC:.c=.o)
 	rm -rf $(SRC:.c=.d)
 	rm -rf *.a

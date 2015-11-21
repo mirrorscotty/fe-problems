@@ -31,9 +31,9 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define STRESS0(T) EffPorePress(CINIT/CAMB, (T))
+#define STRESS0(T) EffPorePress(CINIT/Camb, (T))
 //#define STRESS(X, T, e) (EffPorePress((X), (T)) * 0.1 * porosity((X), (T), (e)) / STRESS0(T))
-#define STRESS(X, T, e) (EffPorePress((X), (T)) * .1 / STRESS0(T))
+#define STRESS(X, T, e) (EffPorePress((X), (T)) *.1 / STRESS0(T))
 
 /* Stress relaxation parameters from Rozzi */
 /*
@@ -70,6 +70,8 @@
 #define J2(M, T) CreepLookupJ2(CREEPFILE, T, M) * STRESS0(T)
 #define TAU1(M, T) scaleTime(p->chardiff, CreepLookupTau1(CREEPFILE, T, M))
 #define TAU2(M, T) scaleTime(p->chardiff, CreepLookupTau2(CREEPFILE, T, M))
+
+extern double Camb;
 
 /**
  * Derivative of the main differential equation with respect to strain
