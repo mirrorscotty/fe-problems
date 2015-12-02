@@ -28,6 +28,11 @@ clean:
 	$(MAKE) -C fe-solver clean
 	rm -rf doc
 
+mostlyclean:
+	rm -rf diffusion-kelvin
+	rm -rf $(SRC:.c=.o)
+	rm -rf $(SRC:.c=.d)
+
 fe-solver/fe-solver.a: force_build
 	$(MAKE) -C fe-solver fe-solver.a
 
