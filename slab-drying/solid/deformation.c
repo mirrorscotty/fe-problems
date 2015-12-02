@@ -1,5 +1,5 @@
 #include "fe-solver.h"
-#include "../common.h"
+#include "../common-kelvin.h"
 #include "deformation.h"
 #include "material-data.h"
 #include "matrix.h"

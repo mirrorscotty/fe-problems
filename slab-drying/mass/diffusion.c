@@ -30,7 +30,7 @@
 #include "material-data.h"
 
 #include "../heat/heat-transfer.h"
-#include "../common.h"
+#include "../common-kelvin.h"
 
 extern choi_okos *comp_global;
 

@@ -2,9 +2,9 @@ CC=gcc
 CFLAGS=-lm -I. -Islab-drying -Imatrix -Imaterial-data -Ife-solver -Wall -g3 -O2 -lblas -llapack
 SRC=$(wildcard other/*.c) \
     $(wildcard slab-drying/*.c) \
-    $(wildcard slab-drying/mass*.c) \
-    $(wildcard slab-drying/heat*.c) \
-    $(wildcard slab-drying/solid*.c) \
+    $(wildcard slab-drying/mass/*.c) \
+    $(wildcard slab-drying/heat/*.c) \
+    $(wildcard slab-drying/solid/*.c) \
     $(wildcard gui/*.c)
 
 all: diffusion-kelvin
