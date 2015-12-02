@@ -70,12 +70,18 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
             setval(m, value, i+STVAR, j+SP1VAR);
             value = quad1d3generic(p, guess, elem, &ResSolid_dTdr2, i/v, j/v);
             setval(m, value, i+STVAR, j+SP2VAR);
+            value = quad1d3generic(p, guess, elem, &ResSolid_dTdS, i/v, j/v);
+            setval(m, value, i+STVAR, j+SSVAR);
 
             value = quad1d3generic(p, guess, elem, &ResSolid_dP1dr1, i/v, j/v);
             setval(m, value, i+SP1VAR, j+SP1VAR);
+            value = quad1d3generic(p, guess, elem, &ResSolid_dP1dS, i/v, j/v);
+            setval(m, value, i+SP1VAR, j+SSVAR);
 
             value = quad1d3generic(p, guess, elem, &ResSolid_dP2dr2, i/v, j/v);
             setval(m, value, i+SP2VAR, j+SP2VAR);
+            value = quad1d3generic(p, guess, elem, &ResSolid_dP2dS, i/v, j/v);
+            setval(m, value, i+SP2VAR, j+SSVAR);
 
 #ifdef SUVAR
             value = quad1d3generic(p, guess, elem, &ResSolid_dudu, i/v, j/v);
@@ -83,6 +89,9 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
             value = quad1d3generic(p, guess, elem, &ResSolid_dude, i/v, j/v);
             setval(m, value, i+SUVAR, j+STVAR);
 #endif
+
+            value = quad1d3generic(p, guess, elem, &ResSolid_dSdS, i/v, j/v);
+            setval(m, value, i+SSVAR, j+SSVAR);
         }
     }
 
@@ -156,12 +165,8 @@ matrix* CreateElementLoad(struct fe1d *p, Elem1D *elem, matrix *guess) {
     m = CreateMatrix(b->n*v, 1);
 
     for(i=0; i<b->n*v; i+=v) {
-        value = quad1d3generic(p, guess, elem, &ResFSolid_T, i/v, 0);
-        setval(m, value, i+STVAR, 0);
-        value = quad1d3generic(p, guess, elem, &ResFSolid_P1, i/v, 0);
-        setval(m, value, i+SP1VAR, 0);
-        value = quad1d3generic(p, guess, elem, &ResFSolid_P2, i/v, 0);
-        setval(m, value, i+SP2VAR, 0);
+        value = quad1d3generic(p, guess, elem, &ResFSolid_S, i/v, 0);
+        setval(m, value, i+SSVAR, 0);
     }
 
     return m;

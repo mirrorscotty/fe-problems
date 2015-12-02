@@ -17,5 +17,10 @@ double ResFSolid_T(struct fe1d *, matrix *, Elem1D *, double, int, int);
 double ResFSolid_P1(struct fe1d *, matrix *, Elem1D *, double, int, int);
 double ResFSolid_P2(struct fe1d *, matrix *, Elem1D *, double, int, int);
 
+double ResSolid_dSdS(struct fe1d *, matrix *, Elem1D *, double, int, int);
+double ResSolid_dTdS(struct fe1d *, matrix *, Elem1D *, double, int, int);
+double ResSolid_dP1dS(struct fe1d *, matrix *, Elem1D *, double, int, int);
+double ResSolid_dP2dS(struct fe1d *, matrix *, Elem1D *, double, int, int);
+double ResFSolid_S(struct fe1d *, matrix *, Elem1D *, double, int, int);
 #endif
 

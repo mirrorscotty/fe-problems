@@ -315,3 +315,82 @@ double ResFSolid_P2(struct fe1d *p, matrix *guess, Elem1D *elem,
     return -1*sigma / IMap1D(p, elem, x);
 }
 
+/* Stress Equation */
+double ResSolid_dSdS(struct fe1d *p, matrix *guess, Elem1D *elem,
+        double x, int f1, int f2)
+{
+    return p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
+}
+
+double ResFSolid_S(struct fe1d *p, matrix *guess, Elem1D *elem,
+                   double x, int f1, int a)
+{
+    double T = TINIT,
+           C = 0,
+           Pc = 0,
+           epsilon = 0,
+           xf = 0,
+           Ci, ei;
+    int i;
+    solution *s;
+    basis *b;
+
+    b = p->b;
+    s = CreateSolution(p->t, p->dt, guess);
+
+    for(i=0; i<b->n; i++) {
+        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
+        Ci = uscaleTemp(p->chardiff, Ci);
+        ei = EvalSoln1D(p, STVAR, elem, s, valV(elem->points, i));
+
+        epsilon += ei * b->phi[i](x);
+        C += Ci * b->phi[i](x);
+
+        Pc += STRESS(Ci, T, epsilon) * b->phi[i](x);
+        xf += solidfrac(CINIT, TINIT, ei) * b->phi[i](x);
+    }
+    free(s);
+    return -1*Pc*solidfrac(CINIT, epsilon, T) / IMap1D(p, elem, x);
+}
+
+double ResSolid_dTdS(struct fe1d *p, matrix *guess, Elem1D *elem,
+        double x, int f1, int f2)
+{
+    double T = TINIT,
+           C = 0,
+           sigma = 0,
+           epsilon = 0,
+           j0 = 0,
+           Ci, ei;
+    int i;
+    solution *s;
+    basis *b;
+
+    b = p->b;
+    s = CreateSolution(p->t, p->dt, guess);
+
+    for(i=0; i<b->n; i++) {
+        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
+        Ci = uscaleTemp(p->chardiff, Ci);
+        ei = EvalSoln1D(p, STVAR, elem, s, valV(elem->points, i));
+        epsilon += ei * b->phi[i](x);
+        C += Ci * b->phi[i](x);
+        j0 += J0(Ci, T) * b->phi[i](x);
+        sigma += STRESS(Ci, T, epsilon) * b->phi[i](x);
+    }
+    free(s);
+    return j0 * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
+}
+
+double ResSolid_dP1dS(struct fe1d *p, matrix *guess, Elem1D *elem,
+        double x, int f1, int f2)
+{
+    return -1*p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
+}
+
+double ResSolid_dP2dS(struct fe1d *p, matrix *guess, Elem1D *elem,
+        double x, int f1, int f2)
+{
+    return -1*p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
+}
+
