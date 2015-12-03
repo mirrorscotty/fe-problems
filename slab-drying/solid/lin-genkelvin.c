@@ -350,7 +350,7 @@ double ResFSolid_S(struct fe1d *p, matrix *guess, Elem1D *elem,
         xf += solidfrac(CINIT, TINIT, ei) * b->phi[i](x);
     }
     free(s);
-    return -1*Pc*solidfrac(CINIT, epsilon, T) / IMap1D(p, elem, x);
+    return -1*Pc*(1-solidfrac(CINIT, T, epsilon)) / IMap1D(p, elem, x);
 }
 
 double ResSolid_dTdS(struct fe1d *p, matrix *guess, Elem1D *elem,
