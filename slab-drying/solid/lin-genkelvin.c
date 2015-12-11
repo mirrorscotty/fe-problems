@@ -31,10 +31,10 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define STRESS0(T) EffPorePressFlat(CINIT/Camb, (T))
+#define STRESS0(T) EffPorePress(CINIT/Camb, (T))
 //#define STRESS(X, T, e) (EffPorePress((X), (T)) * 0.1 * porosity((X), (T), (e)) / STRESS0(T))
 #define STRESS(X, T, e) \
-    ( EffPorePressFlat((X), (T))/STRESS0((T)) * .0612 )
+    ( EffPorePress((X), (T))/STRESS0((T)) * .0612 )
 
 /* Stress relaxation parameters from Rozzi */
 /*
@@ -72,7 +72,20 @@
 #define TAU1(M, T) scaleTime(p->chardiff, CreepLookupTau1(CREEPFILE, T, M))
 #define TAU2(M, T) scaleTime(p->chardiff, CreepLookupTau2(CREEPFILE, T, M))
 
+#define IsPlastic(X, T) IsPlastic_Tg((X), (T))
+
 extern double Camb;
+
+int IsPlastic_Tg(double X, double T)
+{
+    double Xtg;
+    gordontaylor *gt;
+    Xtg = GordonTaylorInv(gt, T);
+    if(X > Xtg)
+        return 0;
+    else
+        return 1;
+}
 
 /**
  * Derivative of the main differential equation with respect to strain
@@ -80,13 +93,29 @@ extern double Camb;
 double ResSolid_dTde(struct fe1d *p, matrix *guess, Elem1D *elem,
                     double x, int f1, int f2)
 {
-    double value;
+    double value,
+           Ci, C=0,
+           T=TINIT;
     basis *b;
 
     b = p->b;
+    solution *s;
+    s = CreateSolution(p->t, p->dt, guess);
 
-    value = -1 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
-    return value;
+    for(i=0; i<b->n; i++) {
+        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
+        Ci = uscaleTemp(p->chardiff, Ci);
+
+        C += Ci * b->phi[i](x);
+    }
+    free(s);
+
+    if(IsPlastic(C, T)) {
+        return 0;
+    } else {
+        value = -1 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
+        return value;
+    }
 }
 
 /**
@@ -114,10 +143,14 @@ double ResSolid_dTdr1(struct fe1d *p, matrix *guess, Elem1D *elem,
         C += Ci * b->phi[i](x);
         j1 += J1(Ci, T) * b->phi[i](x);
     }
-
-    value = j1 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
     free(s);
-    return value;
+
+    if(IsPlastic(C, T)) {
+        return 0;
+    } else {
+        value = j1 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
+        return value;
+    }
 }
 
 /**
@@ -145,10 +178,14 @@ double ResSolid_dTdr2(struct fe1d *p, matrix *guess, Elem1D *elem,
         C += Ci * b->phi[i](x);
         j2 += J2(Ci, T) * b->phi[i](x);
     }
-
-    value = j2 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
     free(s);
-    return value;
+
+    if(IsPlastic(C, T)) {
+        return 0;
+    } else {
+        value = j2 * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
+        return value;
+    }
 }
 
 double ResSolid_zero(struct fe1d *p, matrix *guess, Elem1D *elem,
@@ -256,7 +293,12 @@ double ResFSolid_T(struct fe1d *p, matrix *guess, Elem1D *elem,
         sigma += STRESS(Ci, T, epsilon) * b->phi[i](x);
     }
     free(s);
-    return sigma*j0 / IMap1D(p, elem, x);
+
+    if(IsPlastic(C, T)) {
+        return 0;
+    } else {
+        return sigma*j0 / IMap1D(p, elem, x);
+    }
 }
 
 double ResFSolid_P1(struct fe1d *p, matrix *guess, Elem1D *elem,
