@@ -62,7 +62,7 @@ double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
             * once they've been calculated */
            DDDx = 0, D = 0, u = 0,
            /* D and grad(D) on the nodes */
-           Di, Ci, Ti,ui,
+           Di, Ci, ui,
            /* Final value of the function */
            value = 0;
     int i;
