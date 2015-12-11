@@ -31,10 +31,10 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define STRESS0(T) EffPorePress(CINIT/Camb, (T))
+#define STRESS0(T) EffPorePressFlat(CINIT/Camb, (T))
 //#define STRESS(X, T, e) (EffPorePress((X), (T)) * 0.1 * porosity((X), (T), (e)) / STRESS0(T))
 #define STRESS(X, T, e) \
-    ( EffPorePress((X), (T))/STRESS0((T)) * .0612 )
+    ( EffPorePressFlat((X), (T))/STRESS0((T)) * .0612 )
 
 /* Stress relaxation parameters from Rozzi */
 /*

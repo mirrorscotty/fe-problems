@@ -18,8 +18,8 @@ double Camb;
 
 int IsDone(struct fe1d *p)
 {
-    //double tf = 72000;
-    double tf = 144000;
+    double tf = 72000;
+    //double tf = 144000;
     if(tf < uscaleTime(p->chardiff, CurrentTime(p, p->t)))
         return 1;
     else
