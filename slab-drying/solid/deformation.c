@@ -168,6 +168,25 @@ double EffPorePress(double X, double T)
     return Pnet;
 }
 
+double EffPorePressFlat(double X, double T)
+{
+    double P, P0, Pnet, Xtg;
+    gordontaylor *gt;
+
+    gt = GTSemolina();
+    Xtg = GordonTaylorInv(gt, T);
+    DestroyGT(gt);
+
+    if(X < Xtg)
+        X = Xtg;
+
+    P = pore_press(X, T);
+    P0 = pore_press(CINIT, T);
+    Pnet = P-P0;
+
+    return Pnet;
+}
+
 /**
  * Calculate the porosity of the sample at point X (material coordinates) using
  * the assumption that the pores were initially filled with water. Here, the
