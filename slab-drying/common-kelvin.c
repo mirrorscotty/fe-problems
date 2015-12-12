@@ -122,6 +122,9 @@ matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
             value = quad1d3generic(p, guess, elem, &ResDtMass, i/v, j/v);
             setval(m, value, i+CVAR, j+CVAR);
 
+            value = quad1d3generic(p, guess, elem, &ResDtSolid_dTde, i/v, j/v);
+            setval(m, value, i+STVAR, j+STVAR);
+
             value = quad1d3generic(p, guess, elem, &ResDtSolid_dP1dr1, i/v, j/v);
             setval(m, value, i+SP1VAR, j+SP1VAR);
 

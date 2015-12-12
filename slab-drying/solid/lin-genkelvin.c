@@ -80,7 +80,11 @@ int IsPlastic_Tg(double X, double T)
 {
     double Xtg;
     gordontaylor *gt;
+
+    gt = GTSemolina();
     Xtg = GordonTaylorInv(gt, T);
+    DestroyGT(gt);
+
     if(X > Xtg)
         return 0;
     else
@@ -97,6 +101,7 @@ double ResSolid_dTde(struct fe1d *p, matrix *guess, Elem1D *elem,
            Ci, C=0,
            T=TINIT;
     basis *b;
+    int i;
 
     b = p->b;
     solution *s;
@@ -254,6 +259,33 @@ double ResSolid_dP2dr2(struct fe1d *p, matrix *guess, Elem1D *elem,
         * p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
 }
 
+double ResDtSolid_dTde(struct fe1d *p, matrix *guess, Elem1D *elem,
+                      double x, int f1, int f2)
+{
+    double T = TINIT,
+           C = 0,
+           Ci;
+    int i;
+    basis *b;
+    b = p->b;
+
+    solution *s;
+    s = CreateSolution(p->t, p->dt, guess);
+
+    for(i=0; i<b->n; i++) {
+        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
+        Ci = uscaleTemp(p->chardiff, Ci);
+
+        C += Ci * b->phi[i](x);
+    }
+    free(s);
+
+    if(IsPlastic(C, T))
+        return 0;
+    else
+        return p->b->phi[f1](x) * p->b->phi[f2](x) / IMap1D(p, elem, x);
+}
+
 double ResDtSolid_dP1dr1(struct fe1d *p, matrix *guess, Elem1D *elem,
                       double x, int f1, int f2)
 {
@@ -295,7 +327,7 @@ double ResFSolid_T(struct fe1d *p, matrix *guess, Elem1D *elem,
     free(s);
 
     if(IsPlastic(C, T)) {
-        return 0;
+        return 1e-10;
     } else {
         return sigma*j0 / IMap1D(p, elem, x);
     }

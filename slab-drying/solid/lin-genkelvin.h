@@ -8,6 +8,7 @@ double ResSolid_zero(struct fe1d *, matrix *, Elem1D *, double, int, int);
 double ResSolid_dP1dr1(struct fe1d *, matrix *, Elem1D *, double, int, int);
 double ResSolid_dP2dr2(struct fe1d *, matrix *, Elem1D *, double, int, int);
 
+double ResDtSolid_dTde(struct fe1d *, matrix *, Elem1D *, double, int, int);
 double ResDtSolid_dP1de(struct fe1d *, matrix *, Elem1D *, double, int, int);
 double ResDtSolid_dP1dr1(struct fe1d *, matrix *, Elem1D *, double, int, int);
 double ResDtSolid_dP2de(struct fe1d *, matrix *, Elem1D *, double, int, int);
