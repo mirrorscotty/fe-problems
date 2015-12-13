@@ -34,6 +34,23 @@
 
 extern choi_okos *comp_global;
 
+double density(double X, double T, double strain)
+{
+    double phi, rhot;
+    choi_okos *co_dry, *co_wet;
+
+    co_dry = CreateChoiOkos(PASTACOMP);
+    co_wet = AddDryBasis(co_dry, X);
+ 
+    phi = porosity(CINIT, X, T, strain);
+    rhot = rho(co_wet, T);
+
+    DestroyChoiOkos(co_dry);
+    DestroyChoiOkos(co_wet);
+
+    return (1-phi)*rhot;
+}
+
 /**
  * Function used to recalculate the Jacobian matrix at each time step. This
  * function is supplied to the FEM solver and integrated to give the J matrix.
@@ -57,12 +74,13 @@ double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
 {
            /* Used to store the values of the three terms of the PDE calculated
             * by this function */
-    double term1 = 0, term2 = 0, term3 = 0,
+    double term1 = 0, term2 = 0, term3 = 0, term4 = 0,
            /* These hold the values for diffusivity and gradient of diffusivity
             * once they've been calculated */
-           DDDx = 0, D = 0, u = 0,
+           DDDx = 0, D = 0, u = 0, rhot = 0, DrhoDx = 0, strain = 0, DuDt = 0,
            /* D and grad(D) on the nodes */
-           Di, Ci, ui,
+           Di, Ci, ui, rhoti, straini, DuiDt,
+           T = TINIT,
            /* Final value of the function */
            value = 0;
     int i;
@@ -77,65 +95,55 @@ double ResMass(struct fe1d *p, matrix *guess, Elem1D *elem,
     /* Calculate thermal conductivity, density, heat capacity, and thermal
      * conductivity gradient at x */
     for(i=0; i<b->n; i++) {
-        //Ti = EvalSoln1D(p, TVAR, elem, s, valV(elem->points, i));
+        /* Concentration */
         Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
-        //Di = DIFF(uscaleTemp(p->chardiff, Ci), uscaleTemp(p->charvals, Ti));
+        
+        /* Diffusivity */
         Di = DIFF(uscaleTemp(p->chardiff, Ci), TINIT);
         D += Di * b->phi[i](x);
         DDDx += Di * b->dphi[i](x);
-#ifdef SUVAR
+
+        /* Displacement */
         ui = EvalSoln1D(p, SUVAR, elem, s, valV(elem->points, i));
         u += ui * b->phi[i](x);
-#endif
+        /* Velocity */
+        DuiDt = EvalSolnDt1D(p, SUVAR, elem, s, valV(elem->points, i));
+        DuDt += DuiDt * b->phi[i](x);
+
+        /* Strain */
+        straini = EvalSoln1D(p, STVAR, elem, s, valV(elem->points, i));
+        strain += straini * b->phi[i](x);
+
+        /* Total density */
+        rhoti = density(uscaleTemp(p->chardiff, Ci), T, straini);
+        rhot += rhoti * b->phi[i](x);
+        DrhoDx += rhoti * b->dphi[i](x);
     }
     /* Then delete the temporary solution we made earlier. */
     free(s);
 
     /* Calculate the value of the term involving the second derivative of
-     * temperature */
+     * concentration */
     term1 = D;
     term1 *= b->dphi[f1](x) * b->dphi[f2](x);
     term1 *= IMap1D(p, elem, x);
 
-    /* Now that we have the gradient of thermal conductivity, we can calculate
+    /* Now that we have the gradient of diffusivity, we can calculate
      * the value of the term containing it. */
     term2 = DDDx * b->dphi[f1](x) * b->phi[f2](x);
     //term2 *= 1/IMap1D(p, elem, x);
     /* Hopefully the above term is correct. It appears to yield accurate
      * results, at least. */
 
-    /* This determines the value of the term that arises due to the moving
-     * mesh. */
-#ifdef SUVAR
-    term3 = u * b->phi[f1](x) * b->dphi[f1](x) * b->phi[f1](x);
-#else
-    term3 = b->dphi[f1](x) * IMapDt1D(p, elem, x);
-    term3 *= b->phi[f2](x);
-    //term3 *= 1/IMap1D(p, elem, x);
-#endif
+    /* This term is for the change in density due to solid movement and
+     * drying. */
+    term3 = 1/rhot * DrhoDx * D * b->dphi[f1](x) * b->phi[f2](x);
+
+    /* Term involving mesh velocity */
+    term4 = -1*DuDt * b->dphi[f1](x) * b->phi[f2](x);
 
     /* Combine all the terms and return the result */
-    value = (term1 - term2)/p->chardiff.alpha;// + term3;
-    return value;
-}
-
-double ResMass_dCdu(struct fe1d *p, matrix *guess, Elem1D *elem,
-                    double x, int f1, int f2)
-{
-    int i;
-    double value = 0, Ci = 0, C = 0;
-    basis *b;
-    solution *s;
-
-    b = p->b;
-    s = CreateSolution(p->t, p->dt, guess);
-    for(i=0; i<b->n; i++) {
-        Ci = EvalSoln1D(p, CVAR, elem, s, valV(elem->points, i));
-        C += Ci * b->phi[i](x);
-    }
-    free(s);
-
-    value = C * b->phi[f1](x)*b->dphi[f1](x)*b->phi[f2](x);
+    value = (term1 + term2 + term3)/p->chardiff.alpha - term4;
     return value;
 }
 
@@ -164,6 +172,29 @@ double ResDtMass(struct fe1d *p, matrix *guess, Elem1D *elem,
     b = p->b;
 
     value = b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
+
+    return value;
+}
+
+double ResDtMass_Du(struct fe1d *p, matrix *guess, Elem1D *elem,
+                 double x, int f1, int f2)
+{
+    double value, ci, DcDx = 0;
+    basis *b;
+    b = p->b;
+    int i;
+
+    solution *s;
+    s = CreateSolution(p->t, p->dt, guess);
+
+    /* Calculate thermal conductivity, density, heat capacity, and thermal
+     * conductivity gradient at x */
+    for(i=0; i<b->n; i++) {
+        ci = EvalSoln1D(p, SUVAR, elem, s, valV(elem->points, i));
+        DcDx += ci * b->dphi[i](x);
+    }
+    free(s);
+    value = DcDx * b->phi[f1](x) * b->phi[f2](x) / IMap1D(p, elem, x);
 
     return value;
 }
