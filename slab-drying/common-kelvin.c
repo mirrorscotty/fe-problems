@@ -61,8 +61,6 @@ matrix* CreateElementMatrix(struct fe1d *p, Elem1D *elem, matrix *guess)
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &ResMass, i/v, j/v);
             setval(m, value, i+CVAR, j+CVAR);
-            value = quad1d3generic(p, guess, elem, &ResMass_dCdu, i/v, j/v);
-            setval(m, value, i+CVAR, j+SUVAR);
 
             value = quad1d3generic(p, guess, elem, &ResSolid_dTde, i/v, j/v);
             setval(m, value, i+STVAR, j+STVAR);
@@ -130,6 +128,8 @@ matrix* CreateDTimeMatrix(struct fe1d *p, Elem1D *elem, matrix *guess) {
         for(j=0; j<b->n*v; j+=v) {
             value = quad1d3generic(p, guess, elem, &ResDtMass, i/v, j/v);
             setval(m, value, i+CVAR, j+CVAR);
+            value = quad1d3generic(p, guess, elem, &ResDtMass_Du, i/v, j/v);
+            setval(m, value, i+CVAR, j+SUVAR);
 
             value = quad1d3generic(p, guess, elem, &ResDtSolid_dP1dr1, i/v, j/v);
             setval(m, value, i+SP1VAR, j+SP1VAR);

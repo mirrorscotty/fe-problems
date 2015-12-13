@@ -297,7 +297,8 @@ void CSVOutProfiles2(struct fe1d *p, int n, char *filename)
     tmp3 = CreateMatrix(nRows(tmp1), 1);
     for(j=0; j<nRows(tmp3); j++)
         setval(tmp3,
-               porosity(uscaleTemp(p->chardiff, val(tmp1, j, 0)),
+               porosity(CINIT,
+                        uscaleTemp(p->chardiff, val(tmp1, j, 0)),
                         TINIT,
                         val(tmp2, j, 0)),
                j, 0);
@@ -333,7 +334,8 @@ void CSVOutProfiles2(struct fe1d *p, int n, char *filename)
         tmp3 = CreateMatrix(nRows(tmp1), 1);
         for(j=0; j<nRows(tmp3); j++)
             setval(tmp3,
-                   porosity(uscaleTemp(p->chardiff, val(tmp1, j, 0)),
+                   porosity(CINIT,
+                            uscaleTemp(p->chardiff, val(tmp1, j, 0)),
                             TINIT,
                             val(tmp2, j, 0)),
                    j, 0);
