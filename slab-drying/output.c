@@ -171,7 +171,7 @@ void CSVOutAvg(struct fe1d *p, int var, char *filename)
 {
     int i;
     FILE *fp;
-    double C, u;
+    double C, u, strain;
     solution *s;
     matrix *umatrix;
 
@@ -183,7 +183,7 @@ void CSVOutAvg(struct fe1d *p, int var, char *filename)
     }
 
     /* Print out the column headers */
-    fprintf(fp, "Time,Concentration,Displacement\n");
+    fprintf(fp, "Time,Concentration,Displacement,Strain,Porosity,SolidFrac\n");
 
     /* Print out the values */
     for(i=0; i<p->t; i++) {
@@ -198,11 +198,15 @@ void CSVOutAvg(struct fe1d *p, int var, char *filename)
 #endif
 
         C = AvgSoln1DG(p, i, var);
+        strain = AvgSoln1DG(p, i, STVAR);
 
-        fprintf(fp, "%g,%g,%g\n",
+        fprintf(fp, "%g,%g,%g,%g,%g,%g\n",
                 uscaleTime(p->chardiff, CurrentTime(p, i)),
                 uscaleTemp(p->chardiff, C),
-                u);
+                u,
+                strain,
+                porosity(CINIT, uscaleTemp(p->chardiff, C), TINIT, u),
+                solidfrac(CINIT, TINIT, u));
     }
     fprintf(fp, "\n");
 

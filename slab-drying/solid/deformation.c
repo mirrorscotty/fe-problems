@@ -168,6 +168,18 @@ double EffPorePress(double X, double T)
     return Pnet;
 }
 
+double EffPorePressExp(double X, double T)
+{
+    double P = pore_press_exp(X, T),
+           P0 = pore_press_exp(CINIT, T),
+           Pnet = 0;
+    Pnet = P-P0;
+    //if(Pnet < 0)
+        //Pnet = 0;
+
+    return Pnet;
+}
+
 double EffPorePressFlat(double X, double T)
 {
     double P, P0, Pnet, Xtg;
