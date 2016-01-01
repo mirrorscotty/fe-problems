@@ -11,6 +11,7 @@ double Porosity(struct fe1d*, double, int);
 
 double EffPorePress(double, double);
 double EffPorePressExp(double, double);
+double EffPorePressExpG0(double, double);
 double EffPorePressFlat(double, double);
 
 #endif

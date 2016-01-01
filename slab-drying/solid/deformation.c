@@ -177,7 +177,22 @@ double EffPorePressExp(double X, double T)
     //if(Pnet < 0)
         //Pnet = 0;
 
-    return Pnet;
+    return -1*Pnet;
+}
+
+double EffPorePressExpG0(double X, double T)
+{
+    double a = -23144527.1268744,
+           b = -11948283.814715,
+           c = 6051489.83552528,
+           P = a*X*X+b*X+c,
+           P0 = a*CINIT*CINIT+b*CINIT+c,
+           Pnet = 0;
+    Pnet = P-P0;
+    //if(Pnet < 0)
+        //Pnet = 0;
+
+    return -1*Pnet;
 }
 
 double EffPorePressFlat(double X, double T)
