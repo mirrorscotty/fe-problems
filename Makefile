@@ -17,6 +17,9 @@ doc:
 diffusion-kelvin: slab-drying/mass/diffusion.o slab-drying/solid/deformation.o slab-drying/solid/lin-genkelvin.o slab-drying/solid/kinematics.o slab-drying/mt-main.o slab-drying/output.o slab-drying/common-kelvin.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
 	$(CC) -o $@ $^ $(CFLAGS)
 
+pc-test2: slab-drying/solid/deformation.o pc-test2.o fe-solver/fe-solver.a material-data/material-data.a matrix/matrix.a
+	$(CC) -o $@ $^ $(CFLAGS)
+
 clean:
 #rm -rf spheroid 2dlaplace ce675p1 ce675p2 heat-explicit heat-cyl meshtest
 	rm -rf diffusion-kelvin
