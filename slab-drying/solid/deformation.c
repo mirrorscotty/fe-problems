@@ -4,6 +4,8 @@
 #include "material-data.h"
 #include "matrix.h"
 
+#include<math.h>
+
 extern choi_okos *comp_global;
 
 double CreepGina(double t, double T, double X, double P, int deriv)
@@ -193,6 +195,43 @@ double EffPorePressExpG0(double X, double T)
         //Pnet = 0;
 
     return -1*Pnet;
+}
+
+double EffPorePressExpJ(double X, double T)
+{
+    double a = -219316434008.192,
+           b = 227673661388.598,
+           c = -86454174895.012,
+           d = 14089099337.9755,
+           e = -870874680.48006,
+           f = 36982200.38149,
+           g =  -6245953.84453476;
+    if(X>CINIT)
+        X=CINIT;
+    return a*pow(X,6) + b*pow(X,5) + c*pow(X,4)
+           + d*pow(X,3) + e*pow(X,2) + f*X + g;
+}
+
+double EffPorePressExpJinf(double X, double T)
+{
+    double dX = X-CINIT,
+           b1 = .8839,
+           b2 = 0.004264,
+           b3 = -3.726e-5,
+           b4 = 0.3704,
+           b5 = 0.3149,
+           //b6 = -1.001e-5,
+           LL0, J, strain;
+    T = T-273;
+    
+    LL0 = b1 + b2*T + b3*T*T + b4*dX + b5*dX*dX;
+    strain = 1-LL0;
+
+    J = CreepLookupJ0("output.csv", T, X)
+        + CreepLookupJ1("output.csv", T, X)
+        + CreepLookupJ2("output.csv", T, X);
+
+    return -1*strain/J;
 }
 
 double EffPorePressFlat(double X, double T)
