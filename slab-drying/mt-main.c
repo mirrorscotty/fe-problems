@@ -151,8 +151,8 @@ int main(int argc, char *argv[])
 
     sprintf(outfile, "OutAvg-%gK-%g.csv", (double) TINIT, Camb);
     CSVOutAvg(problem, CVAR, outfile);
-    sprintf(outfile, "OutD-%gK-%g.csv", (double) TINIT, Camb);
-    CSVOutFixedNodeDiff2(problem, 20, outfile);
+    //sprintf(outfile, "OutD-%gK-%g.csv", (double) TINIT, Camb);
+    //CSVOutFixedNodeDiff2(problem, 20, outfile);
     sprintf(outfile, "OutProfile-%gK-%g.csv", (double) TINIT, Camb);
     CSVOutProfiles2(problem, 15, outfile);
 

@@ -31,9 +31,9 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define STRESS0(T) EffPorePress(CINIT/Camb, (T))
+#define STRESS0(T) EffPorePressExpJinf(Camb, (T))
 #define STRESS(X, T, e) \
-    ( EffPorePress((X), (T))/STRESS0((T)) * .0612 )
+    ( EffPorePressExpJinf((X), (T)) )
 
 /* Stress relaxation parameters from Rozzi */
 /*
@@ -65,9 +65,9 @@
 #define TAU2(M, T) scaleTime(p->chardiff, 1.618177e+02)
 */
 #define CREEPFILE "output.csv"
-#define J0(M, T) CreepLookupJ0(CREEPFILE, T, M) * STRESS0(T)
-#define J1(M, T) CreepLookupJ1(CREEPFILE, T, M) * STRESS0(T)
-#define J2(M, T) CreepLookupJ2(CREEPFILE, T, M) * STRESS0(T)
+#define J0(M, T) CreepLookupJ0(CREEPFILE, T, M) 
+#define J1(M, T) CreepLookupJ1(CREEPFILE, T, M)
+#define J2(M, T) CreepLookupJ2(CREEPFILE, T, M)
 #define TAU1(M, T) scaleTime(p->chardiff, CreepLookupTau1(CREEPFILE, T, M))
 #define TAU2(M, T) scaleTime(p->chardiff, CreepLookupTau2(CREEPFILE, T, M))
 
@@ -101,7 +101,7 @@ double ResFSolid_T(struct fe1d *p, matrix *guess, Elem1D *elem,
            C = 0,
            sigma = 0,
            epsilon = 0,
-           j0 = 0,
+           j = 0,
            Ci, ei;
     int i;
     solution *s;
@@ -116,9 +116,10 @@ double ResFSolid_T(struct fe1d *p, matrix *guess, Elem1D *elem,
         ei = EvalSoln1D(p, STVAR, elem, s, valV(elem->points, i));
         epsilon += ei * b->phi[i](x);
         C += Ci * b->phi[i](x);
-        j0 += J0(Ci, T) * b->phi[i](x);
+        j += (J0(Ci,T) + J1(Ci,T) + J2(Ci,T)) * b->phi[i](x);
         sigma += STRESS(Ci, T, epsilon) * b->phi[i](x);
     }
+
     free(s);
-    return sigma*j0 / IMap1D(p, elem, x);
+    return sigma*j/2 / IMap1D(p, elem, x);
 }
